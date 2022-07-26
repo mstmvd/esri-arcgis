@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Map</title>
+    <base href="/">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .layer-button {
+            min-height: 32px;
+            min-width: 120px;
+            border: solid 1px rgba(110, 110, 110, .3);
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 125ms ease-in-out;
+        }
+
+        .layer-button:hover {
+            background-color: #f3f3f3;
+            transition: background-color 125ms ease-in-out;
+        }
+    </style>
+    <script src="https://js.arcgis.com/4.24/"></script>
+    <script>
+        const apiKey = "AAPK67b118461a0d4ad7bcd1610d63b27fc5QXeR_ElHjyBjd97mKx2zGsS8yvCvEzI3bGXlTEgavoIKeFQrKwosUTyu26WnzxaP";//replace it with your API key
+        const pointLayerUrl = 'https://example.com/features/point';//Url of point layer source
+        const polylineLayerUrl = 'https://example.com/features/polyline';//Url of polyline layer source
+        const polygonLayerUrl = 'https://example.com/features/polygon';//Url of polygon layer source
+        const initialCoordinate = [-118.805, 34.027];//The center of map
+        const initialZoom = 13;//Initial zoom level of map
+
+        let view;
+
+        const layers = {
+            pointLayer: {},
+            polylineLayer: {},
+            polygonLayer: {},
+        };
+
+        const layerButtons = [
+            {text: 'Point Layer', layer: 'pointLayer'},
+            {text: 'Polyline Layer', layer: 'polylineLayer'},
+            {text: 'Polygon Layer', layer: 'polygonLayer'},
+        ];
+
+        require([
+            "esri/config",
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/GraphicsLayer",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/Sketch"
+        ], function (esriConfig, Map, MapView, GraphicsLayer, FeatureLayer, Sketch) {
+            esriConfig.apiKey = apiKey;
+            const graphicsLayer = new GraphicsLayer();
+
+            const map = new Map({
+                basemap: "hybrid",
+            });
+
+            view = new MapView({
+                container: "viewDiv",
+                map: map,
+                zoom: initialZoom,
+                center: initialCoordinate,
+            });
+            view.when(() => {
+                const sketch = new Sketch({
+                    layer: graphicsLayer,
+                    view: view,
+                    creationMode: "update"
+                });
+                view.ui.add([{component: sketch, index: 0, position: "top-left"}]);
+            });
+
+            layerButtons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.classList.add('layer-button');
+                btn.onclick = () => {
+                    showLayer(button.layer)
+                };
+                btn.innerHTML = button.text;
+                view.ui.add(btn, 'top-right');
+            });
+
+            //Define layers
+            layers.pointLayer = new FeatureLayer();
+            fetch(pointLayerUrl).then((features) => {
+                layers.pointLayer.source = features
+                map.layers.add(layers.pointLayer);
+            }).catch(e => {
+                console.error('Could not fetch point layer');
+                console.error(e);
+            });
+
+            layers.polylineLayer = new FeatureLayer();
+            fetch(polylineLayerUrl).then((features) => {
+                layers.polylineLayer.source = features
+                map.layers.add(layers.polylineLayer);
+            }).catch(e => {
+                console.error('Could not fetch polyline layer');
+                console.error(e);
+            });
+
+            layers.polygonLayer = new FeatureLayer();
+            fetch(polygonLayerUrl).then((features) => {
+                layers.polygonLayer.source = features
+                map.layers.add(layers.polygonLayer);
+            }).catch(e => {
+                console.error('Could not fetch polygon layer');
+                console.error(e);
+            });
+
+            map.layers.addMany([graphicsLayer]);
+        });
+
+        function showLayer(layerName) {
+            Object.keys(layers).forEach(layer => {
+                layers[layer].visible = layer === layerName;
+            });
+            layers[layerName]
+                .when((layer) => {
+                    return layer.queryExtent();
+                })
+                .then((response) => {
+                    view.goTo(response.extent);
+                });
+        }
+    </script>
+</head>
+<body>
+<div id="viewDiv"></div>
+</body>
+</html>
+
