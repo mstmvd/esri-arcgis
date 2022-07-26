@@ -1,3 +1,5 @@
+#esri-arcgis
+
 ##How to run
 You can run the project using `http-server`.
 
@@ -18,4 +20,4 @@ Remember to update following variables in `script.js` file, with proper values:
 
 `polygonLayerUrl` The url of an external service to retrieve source of polygon layer
 
-You can also set the center of map by update `initialCoordinate` variable
+You can also set the center of map by update `initialCoordinate` variable.
