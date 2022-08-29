@@ -46,6 +46,7 @@ const polygonData = [
         ring: [[-3.6814679, 40.4103599], [-3.6754979, 40.4094599], [-3.6784979, 40.4114599], [-3.6814679, 40.4103599]]
     },
 ];
+let pointIcon = "\ue61d";
 
 require([
     "esri/Map",
@@ -86,6 +87,8 @@ require([
         view.ui.add(btn, 'top-right');
     });
 
+    view.ui.add(document.getElementById('toc'), 'bottom-left');
+
     //Define layers
     layers.pointLayer = new FeatureLayer({
         source: pointsData.map(function (place) {
@@ -103,17 +106,16 @@ require([
         renderer: {
             type: "simple",
             symbol: {
-                type: "simple-marker",
-                color: "#ff0000",
-                outline: {
-                    color: "#000000",
-                    width: 2
+                type: "text",
+                text: "\ue61d",
+                font: {
+                    size: 24,
+                    family: "CalciteWebCoreIcons",
                 }
             }
         },
         objectIdField: "ObjectID",
     });
-    map.layers.add(layers.pointLayer);
     layers.polylineLayer = new FeatureLayer({
         source: polylineData.map(function (line) {
             return new Graphic({
@@ -130,13 +132,12 @@ require([
             type: "simple",
             symbol: {
                 type: "simple-line",
-                color: [226, 119, 40],
+                color: 'rgb(252, 182, 0)',
                 width: 4
             }
         },
         objectIdField: "ObjectID",
     });
-    map.layers.add(layers.polylineLayer);
 
     layers.polygonLayer = new FeatureLayer({
         source: polygonData.map(function (polygon) {
@@ -154,18 +155,17 @@ require([
             type: 'simple',
             symbol: {
                 type: "simple-fill",
-                color: [226, 0, 0, 0.5],
+                color: "rgb(226, 0, 0)",
                 outline: {
-                    color: "rgba(69,0,0,0.5)",
+                    color: "rgb(69,0,0)",
                     width: 2
                 }
             }
         },
         objectIdField: "ObjectID",
     });
-    map.layers.add(layers.polygonLayer);
 
-    map.layers.addMany([graphicsLayer]);
+    map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, graphicsLayer]);
 });
 
 function showLayer(layerName) {
@@ -179,4 +179,79 @@ function showLayer(layerName) {
         .then((response) => {
             view.goTo(response.extent);
         });
+}
+
+function toggleTOC(element) {
+    element.parentElement.querySelector(".nested").classList.toggle("active");
+    element.classList.toggle("caret-down");
+}
+
+function openModal(id) {
+    document.getElementById(id).style.display = "flex";
+}
+
+function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    if (event.target.role === 'dialog') {
+        event.target.style.display = "none";
+    }
+}
+
+window.onload = function (event) {
+    document.getElementById('pointSymbologyIcon').innerText = pointIcon;
+};
+
+function savePointSymbology() {
+    layers.pointLayer.renderer.symbol.font.size = document.getElementById('pointSize').value;
+    layers.pointLayer.renderer.symbol.text = pointIcon;
+    document.getElementById('pointSymbologyIcon').innerText = pointIcon;
+    closeModal('pointLayerSymbologyModal');
+}
+
+function savePolylineSymbology() {
+    const thickness = document.getElementById('polylineThickness').value;
+    const color = document.getElementById('polylineColor').value;
+    layers.polylineLayer.renderer.symbol.width = thickness;
+    layers.polylineLayer.renderer.symbol.color = color;
+    const icon = document.getElementById('polylineSymbologyIcon');
+    icon.style.borderColor = color;
+    icon.style.borderWidth = thickness + 'px';
+    closeModal('polylineLayerSymbologyModal');
+}
+
+function savePolygonSymbology() {
+    const backgroundColor = document.getElementById('polygonBackgroundColor').value;
+    const borderColor = document.getElementById('polygonBorderColor').value;
+    layers.polygonLayer.renderer.symbol.color = backgroundColor;
+    layers.polygonLayer.renderer.symbol.outline.color = borderColor;
+    const icon = document.getElementById('polygonSymbologyIcon');
+    icon.style.backgroundColor = backgroundColor;
+    icon.style.borderColor = borderColor;
+    closeModal('polygonLayerSymbologyModal');
+}
+
+function setIcon(element) {
+    pointIcon = String.fromCharCode(parseInt(element.dataset.code.replace('\\u', ''), 16));
+    document.getElementsByClassName('active-icon')[0]?.classList?.remove('active-icon');
+    element.classList.add('active-icon');
+}
+
+function initPointModal() {
+    document.getElementById('pointSize').value = layers.pointLayer.renderer.symbol.font.size;
+    document.getElementsByClassName('active-icon')[0]?.classList?.remove('active-icon');
+    document.querySelector('[data-code$=' + pointIcon.charCodeAt(0).toString(16) + ']')?.classList.add('active-icon');
+}
+
+function initPolylineModal() {
+    document.getElementById('polylineThickness').value = layers.polylineLayer.renderer.symbol.width;
+    document.getElementById('polylineColor').value = layers.polylineLayer.renderer.symbol.color.toHex();
+}
+
+function initPolygonModal() {
+    document.getElementById('polygonBackgroundColor').value = layers.polygonLayer.renderer.symbol.color.toHex();
+    document.getElementById('polygonBorderColor').value = layers.polygonLayer.renderer.symbol.outline.color.toHex();
 }
