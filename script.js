@@ -47,6 +47,8 @@ const polygonData = [
     },
 ];
 let pointIcon = "\ue61d";
+let map;
+let sketchLayer;
 
 require([
     "esri/Map",
@@ -56,9 +58,9 @@ require([
     "esri/layers/FeatureLayer",
     "esri/widgets/Sketch",
 ], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Sketch) {
-    const graphicsLayer = new GraphicsLayer();
+    sketchLayer = new GraphicsLayer();
 
-    const map = new Map({
+    map = new Map({
         basemap: "hybrid",
     });
 
@@ -70,7 +72,7 @@ require([
     });
     view.when(() => {
         const sketch = new Sketch({
-            layer: graphicsLayer,
+            layer: sketchLayer,
             view: view,
             creationMode: "update"
         });
@@ -165,7 +167,7 @@ require([
         objectIdField: "ObjectID",
     });
 
-    map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, graphicsLayer]);
+    map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 });
 
 function showLayer(layerName) {
@@ -254,4 +256,45 @@ function initPolylineModal() {
 function initPolygonModal() {
     document.getElementById('polygonBackgroundColor').value = layers.polygonLayer.renderer.symbol.color.toHex();
     document.getElementById('polygonBorderColor').value = layers.polygonLayer.renderer.symbol.outline.color.toHex();
+}
+
+function dragStart(element, event) {
+    event.dataTransfer.setData('id', element.id);
+}
+
+function dragEnter(element, event) {
+}
+
+function dragLeave(element, event) {
+}
+
+function dragOver(element, event) {
+    event.preventDefault();
+}
+
+function dropped(element, event) {
+    element.classList.remove('active');
+    const sourceId = event.dataTransfer.getData('id');
+    if (element.id === sourceId) {
+        return;
+    }
+    const sourceElement = document.getElementById(sourceId);
+    const siblings = Array.from(element.parentElement.children);
+    const sourceIndex = siblings.indexOf(sourceElement);
+    const targetIndex = siblings.indexOf(element);
+    if (targetIndex === siblings.length - 1) {
+        element.parentElement.append(sourceElement);
+    } else if (sourceIndex > targetIndex) {
+        element.parentElement.insertBefore(sourceElement, element);
+    } else if (sourceIndex < targetIndex) {
+        element.parentNode.insertBefore(sourceElement, element.nextSibling);
+    }
+    updateLayersOrder();
+}
+
+function updateLayersOrder() {
+    const siblings = Array.from(document.getElementById('layers').children);
+    map.reorder(layers.pointLayer, siblings.length - 1 - siblings.indexOf(document.getElementById('pointLayer')));
+    map.reorder(layers.polylineLayer, siblings.length - 1 - siblings.indexOf(document.getElementById('polylineLayer')));
+    map.reorder(layers.polygonLayer, siblings.length - 1 - siblings.indexOf(document.getElementById('polygonLayer')));
 }
