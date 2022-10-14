@@ -1,6 +1,6 @@
 //configuration
-const initialCoordinate = [-3.6814679, 40.4103599];//The center of map
-const initialZoom = 16;//Initial zoom level of map
+const initialCoordinate = [-3.6784679, 40.4103599];//The center of map
+const initialZoom = 17;//Initial zoom level of map
 
 let view;
 
