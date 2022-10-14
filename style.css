@@ -76,21 +76,24 @@ body,
 
 .toc .layer-name .layer-title {
     flex-grow: 1;
-    margin: 0 8px;
+    margin: 0 4px;
 }
 
 .toc .point-symbology {
+    margin: 0 4px;
     font-size: 16px;
     font-family: CalciteWebCoreIcons;
 }
 
 .toc .polyline-symbology {
+    margin: 0 4px;
     width: 16px;
     height: 0;
     border-bottom: 4px solid #fcb500;
 }
 
 .toc .polygon-symbology {
+    margin: 0 4px;
     background: rgb(255, 70, 46);
     border: 1px solid rgb(0, 0, 0);
     width: 16px;
@@ -191,4 +194,39 @@ body,
 .icon-list .active-icon {
     outline: 2px solid black;
     background-color: #dbdbdb;
+}
+
+.layer-option-menu-container {
+    position: fixed;
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.layer-option-menu {
+    position: relative;
+    padding: 8px;
+    background-color: white;
+    border: 1px solid #aaaaaa;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: 200px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.layer-option-menu button {
+    margin-bottom: 8px;
+    min-height: 32px;
+}
+
+.layer-option-menu button:last-child {
+    margin-bottom: 0;
 }

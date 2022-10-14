@@ -20,35 +20,49 @@ const layerButtons = [
 const pointsData = [
     {
         id: 1,
-        longitude: -3.6814679,
-        latitude: 40.4103599
+        longitude: -3.6804679,
+        latitude: 40.4103000,
+        name: 'First'
     },
     {
         id: 2,
-        longitude: -3.6754979,
-        latitude: 40.4094599
+        longitude: -3.6764979,
+        latitude: 40.4096999,
+        name: 'Second'
     },
     {
         id: 2,
         longitude: -3.6784979,
-        latitude: 40.4114599
+        latitude: 40.4108599,
+        name: 'Third'
     }
 ];
 const polylineData = [
     {
         id: 1,
-        path: [[-3.6814679, 40.4103599], [-3.6754979, 40.4094599], [-3.6784979, 40.4114599]]
+        path: [[-3.6805879, 40.4111599], [-3.6754979, 40.4084599], [-3.6774979, 40.4114599]],
+        name: 'First'
     },
 ];
 const polygonData = [
     {
         id: 1,
-        ring: [[-3.6814679, 40.4103599], [-3.6754979, 40.4094599], [-3.6784979, 40.4114599], [-3.6814679, 40.4103599]]
+        ring: [[-3.6814679, 40.4103599], [-3.6754979, 40.4094599], [-3.6784979, 40.4114599], [-3.6814679, 40.4103599]],
+        name: 'First'
     },
 ];
 let pointIcon = "\ue61d";
 let map;
 let sketchLayer;
+
+const labelPlacement = {
+    pointLayer: ['above-center', 'above-left', 'above-right', 'below-center', 'below-left', 'below-right', 'center-center', 'center-left', 'center-right'],
+    // polyline: ['above-after', 'above-along', 'above-before', 'above-start', 'above-end', 'below-after', 'below-along', 'below-before', 'below-start', 'below-end', 'center-after', 'center-along', 'center-before', 'center-start', 'center-end'],
+    polylineLayer: ['center-along'],
+    polygonLayer: ['always-horizontal'],
+}
+
+let activeTocLayer;
 
 require([
     "esri/Map",
@@ -56,8 +70,10 @@ require([
     "esri/Graphic",
     "esri/layers/GraphicsLayer",
     "esri/layers/FeatureLayer",
-    "esri/widgets/Sketch",
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Sketch) {
+    "esri/layers/support/LabelClass",
+    "esri/layers/support/Field",
+    "esri/widgets/Sketch"
+], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch) {
     sketchLayer = new GraphicsLayer();
 
     map = new Map({
@@ -97,6 +113,7 @@ require([
             return new Graphic({
                 attributes: {
                     ObjectId: place.id,
+                    name: place.name,
                 },
                 geometry: {
                     type: "point",
@@ -116,6 +133,31 @@ require([
                 }
             }
         },
+        fields: [
+            {
+                name: "ObjectID",
+                alias: "ObjectID",
+                type: "oid"
+            }, {
+                name: "name",
+                alias: "name",
+                type: "string"
+            },
+        ],
+        labelingInfo: [{  // autocasts as new LabelClass()
+            symbol: {
+                type: "text",  // autocasts as new TextSymbol()
+                color: "black",
+                font: {  // autocast as new Font()
+                    size: 12,
+                    weight: "normal"
+                }
+            },
+            labelPlacement: "below-center",
+            labelExpressionInfo: {
+                expression: "$feature.name"
+            },
+        }],
         objectIdField: "ObjectID",
     });
     layers.polylineLayer = new FeatureLayer({
@@ -123,6 +165,7 @@ require([
             return new Graphic({
                 attributes: {
                     ObjectId: line.id,
+                    name: line.name,
                 },
                 geometry: {
                     type: "polyline",
@@ -138,6 +181,31 @@ require([
                 width: 4
             }
         },
+        fields: [
+            {
+                name: "ObjectID",
+                alias: "ObjectID",
+                type: "oid"
+            }, {
+                name: "name",
+                alias: "name",
+                type: "string"
+            },
+        ],
+        labelingInfo: [{  // autocasts as new LabelClass()
+            symbol: {
+                type: "text",  // autocasts as new TextSymbol()
+                color: "black",
+                font: {  // autocast as new Font()
+                    size: 12,
+                    weight: "normal"
+                }
+            },
+            labelPlacement: "center-along",
+            labelExpressionInfo: {
+                expression: "$feature.name"
+            },
+        }],
         objectIdField: "ObjectID",
     });
 
@@ -146,6 +214,7 @@ require([
             return new Graphic({
                 attributes: {
                     ObjectId: polygon.id,
+                    name: polygon.name,
                 },
                 geometry: {
                     type: "polygon",
@@ -164,6 +233,31 @@ require([
                 }
             }
         },
+        fields: [
+            {
+                name: "ObjectID",
+                alias: "ObjectID",
+                type: "oid"
+            }, {
+                name: "name",
+                alias: "name",
+                type: "string"
+            },
+        ],
+        labelingInfo: [{  // autocasts as new LabelClass()
+            symbol: {
+                type: "text",  // autocasts as new TextSymbol()
+                color: "black",
+                font: {  // autocast as new Font()
+                    size: 12,
+                    weight: "normal"
+                }
+            },
+            labelPlacement: "always-horizontal",
+            labelExpressionInfo: {
+                expression: "$feature.name"
+            },
+        }],
         objectIdField: "ObjectID",
     });
 
@@ -181,6 +275,10 @@ function showLayer(layerName) {
         .then((response) => {
             view.goTo(response.extent);
         });
+}
+
+function toggleLayer(layerName) {
+    layers[layerName].visible = !layers[layerName].visible;
 }
 
 function toggleTOC(element) {
@@ -297,4 +395,63 @@ function updateLayersOrder() {
     map.reorder(layers.pointLayer, siblings.length - 1 - siblings.indexOf(document.getElementById('pointLayer')));
     map.reorder(layers.polylineLayer, siblings.length - 1 - siblings.indexOf(document.getElementById('polylineLayer')));
     map.reorder(layers.polygonLayer, siblings.length - 1 - siblings.indexOf(document.getElementById('polygonLayer')));
+}
+
+function showLayerOptionsMenu(event, layer) {
+    event.preventDefault();
+    activeTocLayer = layer;
+    const menuContainer = document.getElementById('layerOptionMenuContainer');
+    menuContainer.style.display = 'block';
+    const menu = document.getElementById('layerOptionMenu');
+    menu.style.top = event.clientY + 'px';
+    menu.style.left = event.clientX + 'px';
+}
+
+function dismissMenu() {
+    const menuContainer = document.getElementById('layerOptionMenuContainer');
+    menuContainer.style.display = 'none';
+}
+
+function saveLayerLabel() {
+    layers[activeTocLayer].labelingInfo[0].labelExpression = document.getElementById('layerLabelFreeText').value;
+    layers[activeTocLayer].labelingInfo[0].symbol.color = document.getElementById('layerLabelTextColor').value;
+    layers[activeTocLayer].labelingInfo[0].symbol.font.size = document.getElementById('layerLabelTextSize').value;
+    layers[activeTocLayer].labelingInfo[0].symbol.font.weight = document.getElementById('layerLabelTextStyle').value;
+    layers[activeTocLayer].labelingInfo[0].labelPlacement = document.getElementById('layerLabelRelativeLocation').value;
+    const field = document.getElementById('layerLabelField').value;
+    if (field) {
+        layers[activeTocLayer].labelingInfo[0]['labelExpressionInfo']['expression'] = field;
+    } else {
+        layers[activeTocLayer].labelingInfo[0].labelExpressionInfo.expression = "return " + "\"" + document.getElementById('layerLabelFreeText').value + "\"";
+    }
+    closeModal('layerLabelModal');
+}
+
+function openLayerOptionModal() {
+    const labelInfo = layers[activeTocLayer].labelingInfo[0];
+    const fields = layers[activeTocLayer].fields;
+
+    document.getElementById('layerLabelFreeText').value = labelInfo.labelExpression;
+    document.getElementById('layerLabelTextColor').value = labelInfo.symbol.color;
+    document.getElementById('layerLabelTextSize').value = labelInfo.symbol.font.size;
+    document.getElementById('layerLabelTextStyle').value = labelInfo.symbol.font.weight;
+    const relativeLocationSelect = document.getElementById('layerLabelRelativeLocation');
+    relativeLocationSelect.innerHTML = '';
+    labelPlacement[activeTocLayer].forEach((placement) => {
+        const option = document.createElement('option');
+        option.value = placement;
+        option.innerHTML = placement;
+        relativeLocationSelect.append(option);
+    });
+    relativeLocationSelect.value = labelInfo.labelPlacement;
+    const fieldSelect = document.getElementById('layerLabelField');
+    fieldSelect.innerHTML = '<option value="">Use free text</option>'
+    fields.forEach((field) => {
+        const option = document.createElement('option');
+        option.value = '$feature.' + field.name;
+        option.innerHTML = field.name;
+        fieldSelect.append(option);
+    });
+    fieldSelect.value = labelInfo.labelExpressionInfo?.expression.startsWith('return ') ? '' : labelInfo.labelExpressionInfo?.expression;
+    openModal('layerLabelModal');
 }

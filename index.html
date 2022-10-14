@@ -16,17 +16,20 @@
     <li>
         <span class="caret" onclick="toggleTOC(this)">Layers</span>
         <ul class="nested" id="layers">
-            <li id="pointLayer" class="layer-name" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
+            <li id="pointLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'pointLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
+                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('pointLayer')">
                 <div class="point-symbology" id="pointSymbologyIcon"></div>
                 <div class="layer-title">Point Layer</div>
                 <button onclick="initPointModal(); openModal('pointLayerSymbologyModal')">Edit</button>
             </li>
-            <li id="polylineLayer" class="layer-name" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
+            <li id="polylineLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'polylineLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
+                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('polylineLayer')">
                 <div class="polyline-symbology" id="polylineSymbologyIcon"></div>
                 <div class="layer-title">Polyline Layer</div>
                 <button onclick="initPolylineModal(); openModal('polylineLayerSymbologyModal')">Edit</button>
             </li>
-            <li id="polygonLayer" class="layer-name" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
+            <li id="polygonLayer" class="layer-name" draggable="true" oncontextmenu="showLayerOptionsMenu(event, 'polygonLayer')" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
+                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('polygonLayer')">
                 <div class="polygon-symbology" id="polygonSymbologyIcon"></div>
                 <div class="layer-title">Polygon Layer</div>
                 <button onclick="initPolygonModal(); openModal('polygonLayerSymbologyModal')">Edit</button>
@@ -242,7 +245,6 @@
         </div>
     </div>
 </div>
-
 <div id="polylineLayerSymbologyModal" class="modal" role="dialog">
     <div class="modal-content">
         <div class="modal-header">
@@ -279,6 +281,52 @@
             <button onclick="closeModal('polygonLayerSymbologyModal')">Cancel</button>
             <button onclick="savePolygonSymbology()">Confirm</button>
         </div>
+    </div>
+</div>
+
+<div id="layerLabelModal" class="modal" role="dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Layer label</h3>
+            <span class="close" onclick="closeModal('layerLabelModal')">&times;</span>
+        </div>
+        <div class="form-field">
+            <label>Field:
+                <select id="layerLabelField"></select>
+            </label>
+        </div>
+        <div class="form-field">
+            <label>Free text: <input type="text" id="layerLabelFreeText"></label>
+        </div>
+        <div class="form-field">
+            <label>Text color: <input type="color" id="layerLabelTextColor"></label>
+        </div>
+        <div class="form-field">
+            <label>Text size: <input type="number" id="layerLabelTextSize"></label>
+        </div>
+        <div class="form-field">
+            <label>Text style:
+                <select id="layerLabelTextStyle">
+                    <option value="normal">Normal</option>
+                    <option value="bold">Bold</option>
+                </select>
+            </label>
+        </div>
+        <div class="form-field">
+            <label>Relative location:
+                <select id="layerLabelRelativeLocation"></select>
+            </label>
+        </div>
+        <hr>
+        <div class="modal-footer">
+            <button onclick="closeModal('layerLabelModal')">Cancel</button>
+            <button onclick="saveLayerLabel()">Confirm</button>
+        </div>
+    </div>
+</div>
+<div id="layerOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu()">
+    <div id="layerOptionMenu" class="layer-option-menu">
+        <button onclick="openLayerOptionModal()">Set label</button>
     </div>
 </div>
 </body>
