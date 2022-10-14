@@ -66,7 +66,8 @@ body,
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    width: 200px;
+    width: auto;
+    height: 40px;
     cursor: move;
     user-select: none;
     -moz-user-select: none;
@@ -77,27 +78,13 @@ body,
 .toc .layer-name .layer-title {
     flex-grow: 1;
     margin: 0 4px;
+    white-space: nowrap;
+    min-width: 120px;
 }
 
-.toc .point-symbology {
+.toc .symbology {
     margin: 0 4px;
-    font-size: 16px;
-    font-family: CalciteWebCoreIcons;
-}
-
-.toc .polyline-symbology {
-    margin: 0 4px;
-    width: 16px;
-    height: 0;
-    border-bottom: 4px solid #fcb500;
-}
-
-.toc .polygon-symbology {
-    margin: 0 4px;
-    background: rgb(255, 70, 46);
-    border: 1px solid rgb(0, 0, 0);
-    width: 16px;
-    height: 16px;
+    min-width: 32px;
 }
 
 .toc .nested .active {

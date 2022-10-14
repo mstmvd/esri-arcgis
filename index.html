@@ -18,19 +18,19 @@
         <ul class="nested" id="layers">
             <li id="pointLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'pointLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
                 <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('pointLayer')">
-                <div class="point-symbology" id="pointSymbologyIcon"></div>
+                <div class="symbology" id="pointLayerSymbologyIcon"></div>
                 <div class="layer-title">Point Layer</div>
                 <button onclick="initPointModal(); openModal('pointLayerSymbologyModal')">Edit</button>
             </li>
             <li id="polylineLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'polylineLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
                 <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('polylineLayer')">
-                <div class="polyline-symbology" id="polylineSymbologyIcon"></div>
+                <div class="symbology" id="polylineLayerSymbologyIcon"></div>
                 <div class="layer-title">Polyline Layer</div>
                 <button onclick="initPolylineModal(); openModal('polylineLayerSymbologyModal')">Edit</button>
             </li>
             <li id="polygonLayer" class="layer-name" draggable="true" oncontextmenu="showLayerOptionsMenu(event, 'polygonLayer')" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
                 <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('polygonLayer')">
-                <div class="polygon-symbology" id="polygonSymbologyIcon"></div>
+                <div class="symbology" id="polygonLayerSymbologyIcon"></div>
                 <div class="layer-title">Polygon Layer</div>
                 <button onclick="initPolygonModal(); openModal('polygonLayerSymbologyModal')">Edit</button>
             </li>

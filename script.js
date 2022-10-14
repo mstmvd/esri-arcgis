@@ -22,33 +22,33 @@ const pointsData = [
         id: 1,
         longitude: -3.6804679,
         latitude: 40.4103000,
-        name: 'First'
+        name: 'First point'
     },
     {
         id: 2,
         longitude: -3.6764979,
         latitude: 40.4096999,
-        name: 'Second'
+        name: 'Second point'
     },
     {
         id: 2,
         longitude: -3.6784979,
         latitude: 40.4108599,
-        name: 'Third'
+        name: 'Third point'
     }
 ];
 const polylineData = [
     {
         id: 1,
         path: [[-3.6805879, 40.4111599], [-3.6754979, 40.4084599], [-3.6774979, 40.4114599]],
-        name: 'First'
+        name: 'Polyline'
     },
 ];
 const polygonData = [
     {
         id: 1,
         ring: [[-3.6814679, 40.4103599], [-3.6754979, 40.4094599], [-3.6784979, 40.4114599], [-3.6814679, 40.4103599]],
-        name: 'First'
+        name: 'Polygon'
     },
 ];
 let pointIcon = "\ue61d";
@@ -63,6 +63,7 @@ const labelPlacement = {
 }
 
 let activeTocLayer;
+let globalSymbolUtils;
 
 require([
     "esri/Map",
@@ -72,8 +73,10 @@ require([
     "esri/layers/FeatureLayer",
     "esri/layers/support/LabelClass",
     "esri/layers/support/Field",
-    "esri/widgets/Sketch"
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch) {
+    "esri/widgets/Sketch",
+    "esri/symbols/support/symbolUtils"
+], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils) {
+    globalSymbolUtils = symbolUtils;
     sketchLayer = new GraphicsLayer();
 
     map = new Map({
@@ -262,6 +265,16 @@ require([
     });
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
+
+    Object.keys(layers).forEach((layerName) => {
+        symbolUtils.renderPreviewHTML(layers[layerName].renderer.symbol.clone(), {
+            node: document.getElementById(layerName + 'SymbologyIcon'),
+            size: {
+                width: 24,
+                height: 4
+            }
+        });
+    });
 });
 
 function showLayer(layerName) {
@@ -308,7 +321,14 @@ window.onload = function (event) {
 function savePointSymbology() {
     layers.pointLayer.renderer.symbol.font.size = document.getElementById('pointSize').value;
     layers.pointLayer.renderer.symbol.text = pointIcon;
-    document.getElementById('pointSymbologyIcon').innerText = pointIcon;
+    document.getElementById('pointLayerSymbologyIcon').innerHTML = ''
+    globalSymbolUtils.renderPreviewHTML(layers.pointLayer.renderer.symbol.clone(), {
+        node: document.getElementById('pointLayerSymbologyIcon'),
+        size: {
+            width: 24,
+            height: 4
+        }
+    });
     closeModal('pointLayerSymbologyModal');
 }
 
@@ -317,9 +337,14 @@ function savePolylineSymbology() {
     const color = document.getElementById('polylineColor').value;
     layers.polylineLayer.renderer.symbol.width = thickness;
     layers.polylineLayer.renderer.symbol.color = color;
-    const icon = document.getElementById('polylineSymbologyIcon');
-    icon.style.borderColor = color;
-    icon.style.borderWidth = thickness + 'px';
+    document.getElementById('polylineLayerSymbologyIcon').innerHTML = ''
+    globalSymbolUtils.renderPreviewHTML(layers.polylineLayer.renderer.symbol.clone(), {
+        node: document.getElementById('polylineLayerSymbologyIcon'),
+        size: {
+            width: 24,
+            height: 4
+        }
+    });
     closeModal('polylineLayerSymbologyModal');
 }
 
@@ -328,9 +353,14 @@ function savePolygonSymbology() {
     const borderColor = document.getElementById('polygonBorderColor').value;
     layers.polygonLayer.renderer.symbol.color = backgroundColor;
     layers.polygonLayer.renderer.symbol.outline.color = borderColor;
-    const icon = document.getElementById('polygonSymbologyIcon');
-    icon.style.backgroundColor = backgroundColor;
-    icon.style.borderColor = borderColor;
+    document.getElementById('polygonLayerSymbologyIcon').innerHTML = ''
+    globalSymbolUtils.renderPreviewHTML(layers.polygonLayer.renderer.symbol.clone(), {
+        node: document.getElementById('polygonLayerSymbologyIcon'),
+        size: {
+            width: 24,
+            height: 4
+        }
+    });
     closeModal('polygonLayerSymbologyModal');
 }
 
