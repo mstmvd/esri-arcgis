@@ -314,10 +314,6 @@ window.onclick = function (event) {
     }
 }
 
-window.onload = function (event) {
-    document.getElementById('pointSymbologyIcon').innerText = pointIcon;
-};
-
 function savePointSymbology() {
     layers.pointLayer.renderer.symbol.font.size = document.getElementById('pointSize').value;
     layers.pointLayer.renderer.symbol.text = pointIcon;
@@ -462,7 +458,7 @@ function openLayerOptionModal() {
     const fields = layers[activeTocLayer].fields;
 
     document.getElementById('layerLabelFreeText').value = labelInfo.labelExpression;
-    document.getElementById('layerLabelTextColor').value = labelInfo.symbol.color;
+    document.getElementById('layerLabelTextColor').value = labelInfo.symbol.color.toHex();
     document.getElementById('layerLabelTextSize').value = labelInfo.symbol.font.size;
     document.getElementById('layerLabelTextStyle').value = labelInfo.symbol.font.weight;
     const relativeLocationSelect = document.getElementById('layerLabelRelativeLocation');
