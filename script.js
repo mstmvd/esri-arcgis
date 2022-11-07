@@ -346,18 +346,18 @@ function setIcon(element) {
     element.classList.add('active-icon');
 }
 
-function initPointModal() {
+function initPointLayerModal() {
     document.getElementById('pointSize').value = layers.pointLayer.renderer.symbol.font.size;
     document.getElementsByClassName('active-icon')[0]?.classList?.remove('active-icon');
     document.querySelector('[data-code$=' + pointIcon.charCodeAt(0).toString(16) + ']')?.classList.add('active-icon');
 }
 
-function initPolylineModal() {
+function initPolylineLayerModal() {
     document.getElementById('polylineThickness').value = layers.polylineLayer.renderer.symbol.width;
     document.getElementById('polylineColor').value = layers.polylineLayer.renderer.symbol.color.toHex();
 }
 
-function initPolygonModal() {
+function initPolygonLayerModal() {
     document.getElementById('polygonBackgroundColor').value = layers.polygonLayer.renderer.symbol.color.toHex();
     document.getElementById('polygonBorderColor').value = layers.polygonLayer.renderer.symbol.outline.color.toHex();
 }
@@ -461,3 +461,15 @@ function openLayerOptionModal() {
     fieldSelect.value = labelInfo.labelExpressionInfo?.expression.startsWith('return ') ? '' : labelInfo.labelExpressionInfo?.expression;
     openModal('layerLabelModal');
 }
+
+function openLayerEditModal() {
+    window['init' + activeTocLayer.ucFirst() + 'Modal']();
+    openModal(activeTocLayer + 'SymbologyModal');
+}
+
+Object.defineProperty(String.prototype, 'ucFirst', {
+    value: function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    },
+    enumerable: false
+});
