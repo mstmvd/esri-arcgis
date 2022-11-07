@@ -314,50 +314,30 @@ window.onclick = function (event) {
     }
 }
 
-function savePointSymbology() {
-    layers.pointLayer.renderer.symbol.font.size = document.getElementById('pointSize').value;
-    layers.pointLayer.renderer.symbol.text = pointIcon;
-    document.getElementById('pointLayerSymbologyIcon').innerHTML = ''
-    globalSymbolUtils.renderPreviewHTML(layers.pointLayer.renderer.symbol.clone(), {
-        node: document.getElementById('pointLayerSymbologyIcon'),
+function saveSymbology(layerName) {
+    switch (layerName) {
+        case 'pointLayer':
+            layers.pointLayer.renderer.symbol.font.size = document.getElementById('pointSize').value;
+            layers.pointLayer.renderer.symbol.text = pointIcon;
+            break;
+        case 'polylineLayer':
+            layers.polylineLayer.renderer.symbol.width = document.getElementById('polylineThickness').value;
+            layers.polylineLayer.renderer.symbol.color = document.getElementById('polylineColor').value;
+            break;
+        case 'polygonLayer':
+            layers.polygonLayer.renderer.symbol.color = document.getElementById('polygonBackgroundColor').value;
+            layers.polygonLayer.renderer.symbol.outline.color = document.getElementById('polygonBorderColor').value;
+            break;
+    }
+    document.getElementById(layerName + 'SymbologyIcon').innerHTML = ''
+    globalSymbolUtils.renderPreviewHTML(layers[layerName].renderer.symbol.clone(), {
+        node: document.getElementById(layerName + 'SymbologyIcon'),
         size: {
             width: 24,
             height: 4
         }
     });
-    closeModal('pointLayerSymbologyModal');
-}
-
-function savePolylineSymbology() {
-    const thickness = document.getElementById('polylineThickness').value;
-    const color = document.getElementById('polylineColor').value;
-    layers.polylineLayer.renderer.symbol.width = thickness;
-    layers.polylineLayer.renderer.symbol.color = color;
-    document.getElementById('polylineLayerSymbologyIcon').innerHTML = ''
-    globalSymbolUtils.renderPreviewHTML(layers.polylineLayer.renderer.symbol.clone(), {
-        node: document.getElementById('polylineLayerSymbologyIcon'),
-        size: {
-            width: 24,
-            height: 4
-        }
-    });
-    closeModal('polylineLayerSymbologyModal');
-}
-
-function savePolygonSymbology() {
-    const backgroundColor = document.getElementById('polygonBackgroundColor').value;
-    const borderColor = document.getElementById('polygonBorderColor').value;
-    layers.polygonLayer.renderer.symbol.color = backgroundColor;
-    layers.polygonLayer.renderer.symbol.outline.color = borderColor;
-    document.getElementById('polygonLayerSymbologyIcon').innerHTML = ''
-    globalSymbolUtils.renderPreviewHTML(layers.polygonLayer.renderer.symbol.clone(), {
-        node: document.getElementById('polygonLayerSymbologyIcon'),
-        size: {
-            width: 24,
-            height: 4
-        }
-    });
-    closeModal('polygonLayerSymbologyModal');
+    closeModal(layerName + 'SymbologyModal');
 }
 
 function setIcon(element) {
