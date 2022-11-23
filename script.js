@@ -17,7 +17,14 @@ const defaultSymbols = {
         color: 'rgb(252, 182, 0)',
         width: 4
     },
-    polygonLayer: {}
+    polygonLayer: {
+        type: "simple-fill",
+        color: "rgb(226, 0, 0)",
+        outline: {
+            color: "rgb(69, 0, 0)",
+            width: 2
+        }
+    }
 }
 
 const layersInfo = {
@@ -70,9 +77,48 @@ const layersInfo = {
     },
     polygonLayer: {
         renderers: {
-            simple: {},
-            uniqueValue: {},
-            classBreaks: {},
+            simple: {
+                symbol: defaultSymbols.polygonLayer
+            },
+            uniqueValue: {
+                field: "name",
+                defaultSymbol: defaultSymbols.polygonLayer,
+                uniqueValueInfos: [
+                    {
+                        value: "shape1",
+                        symbol: {
+                            type: "simple-fill",
+                            color: "rgb(166,0,226)",
+                            outline: {
+                                color: "rgb(25,1,62)",
+                                width: 2
+                            }
+                        }
+                    },
+                    {
+                        value: "shape2",
+                        symbol: {
+                            type: "simple-fill",
+                            color: "rgb(94,226,0)",
+                            outline: {
+                                color: "rgb(20,57,1)",
+                                width: 2
+                            }
+                        }
+                    }
+                ]
+            },
+            classBreaks: {
+                field: "ObjectID",
+                defaultSymbol: defaultSymbols.polygonLayer,
+                classBreakInfos: [
+                    {
+                        minValue: 0,
+                        maxValue: 100,
+                        symbol: defaultSymbols.polygonLayer
+                    }
+                ]
+            },
         }
     },
 }
@@ -120,7 +166,12 @@ const polygonData = [
     {
         id: 1,
         ring: [[-3.6814679, 40.4103599], [-3.6754979, 40.4094599], [-3.6784979, 40.4114599], [-3.6814679, 40.4103599]],
-        name: 'Polygon'
+        name: 'shape1'
+    },
+    {
+        id: 2,
+        ring: [[-3.6834679, 40.4113599], [-3.6814979, 40.4104599], [-3.6804979, 40.4124599], [-3.6834679, 40.4113599]],
+        name: 'shape2'
     },
 ];
 let pointIcon = "\ue61d";
@@ -193,6 +244,10 @@ require([
     layersInfo.polylineLayer.renderers.simple = new SimpleRenderer(layersInfo.polylineLayer.renderers.simple);
     layersInfo.polylineLayer.renderers.uniqueValue = new UniqueValueRenderer(layersInfo.polylineLayer.renderers.uniqueValue);
     layersInfo.polylineLayer.renderers.classBreaks = new ClassBreaksRenderer(layersInfo.polylineLayer.renderers.classBreaks);
+
+    layersInfo.polygonLayer.renderers.simple = new SimpleRenderer(layersInfo.polygonLayer.renderers.simple);
+    layersInfo.polygonLayer.renderers.uniqueValue = new UniqueValueRenderer(layersInfo.polygonLayer.renderers.uniqueValue);
+    layersInfo.polygonLayer.renderers.classBreaks = new ClassBreaksRenderer(layersInfo.polygonLayer.renderers.classBreaks);
 
     //Define layers
     layers.pointLayer = new FeatureLayer({
@@ -302,17 +357,7 @@ require([
                 }
             });
         }),
-        renderer: {
-            type: 'simple',
-            symbol: {
-                type: "simple-fill",
-                color: "rgb(226, 0, 0)",
-                outline: {
-                    color: "rgb(69,0,0)",
-                    width: 2
-                }
-            }
-        },
+        renderer: layersInfo.polygonLayer.renderers.uniqueValue,
         fields: [
             {
                 name: "ObjectID",
@@ -459,8 +504,53 @@ function saveSymbology(layerName) {
             layers.polylineLayer.renderer = layersInfo.polylineLayer.renderers[activeModalTab];
             break;
         case 'polygonLayer':
-            layers.polygonLayer.renderer.symbol.color = document.getElementById('polygonBackgroundColor').value;
-            layers.polygonLayer.renderer.symbol.outline.color = document.getElementById('polygonBorderColor').value;
+            for (const key of Object.keys(layersInfo.polygonLayer.renderers)) {
+                const rendererType = key.ucFirst();
+                const symbolsElement = document.getElementById(`polygonLayer${rendererType}SymbolSetting`);
+                let index = 0
+                switch (key) {
+                    case 'simple':
+                        layersInfo.polygonLayer.renderers.simple.symbol.color = document.getElementById(activeTocLayer + rendererType + 'Background_0').value;
+                        layersInfo.polygonLayer.renderers.simple.symbol.outline.color = document.getElementById(activeTocLayer + rendererType + 'Border_0').value;
+                        break;
+                    case 'uniqueValue':
+                        layersInfo.polygonLayer.renderers.uniqueValue.field = document.getElementById(activeTocLayer + rendererType + 'LayerField').value;
+                        layersInfo.polygonLayer.renderers.uniqueValue.uniqueValueInfos = [];
+                        for (const symbolSetting of symbolsElement.children) {
+                            const i = symbolSetting.id.split('_')[1];
+                            layersInfo.polygonLayer.renderers.uniqueValue.uniqueValueInfos[index++] = new UniqueValueInfo({
+                                value: document.getElementById(activeTocLayer + rendererType + 'FieldValue_' + i).value,
+                                symbol: {
+                                    type: 'simple-fill',
+                                    color: document.getElementById(activeTocLayer + rendererType + 'Background_' + i).value,
+                                    outline: {
+                                        color: document.getElementById(activeTocLayer + rendererType + 'Border_' + i).value,
+                                    }
+                                }
+                            });
+                        }
+                        break;
+                    case 'classBreaks':
+                        layersInfo.polygonLayer.renderers.classBreaks.field = document.getElementById(activeTocLayer + rendererType + 'LayerField').value;
+                        layersInfo.polygonLayer.renderers.classBreaks.classBreakInfos = [];
+                        for (const symbolSetting of symbolsElement.children) {
+                            const i = symbolSetting.id.split('_')[1];
+                            layersInfo.polygonLayer.renderers.classBreaks.classBreakInfos[i] = new ClassBreakInfo({
+                                minValue: document.getElementById(activeTocLayer + rendererType + 'FieldMinValue_' + i).value,
+                                maxValue: document.getElementById(activeTocLayer + rendererType + 'FieldMaxValue_' + i).value,
+                                symbol: {
+                                    type: 'simple-fill',
+                                    color: document.getElementById(activeTocLayer + rendererType + 'Background_' + i).value,
+                                    outline: {
+                                        color: document.getElementById(activeTocLayer + rendererType + 'Border_' + i).value,
+                                    }
+                                }
+                            });
+                        }
+                        break;
+                }
+            }
+            layers.polygonLayer.renderer = layersInfo.polygonLayer.renderers[activeModalTab];
             break;
     }
     document.getElementById(layerName + 'SymbologyIcon').innerHTML = ''
@@ -533,12 +623,61 @@ function initPolylineLayerModal() {
 }
 
 function initPolygonLayerModal() {
-    document.getElementById('polygonBackgroundColor').value = layers.polygonLayer.renderer.symbol.color.toHex();
-    document.getElementById('polygonBorderColor').value = layers.polygonLayer.renderer.symbol.outline.color.toHex();
+    for (const key of Object.keys(layersInfo.polygonLayer.renderers)) {
+        const renderer = layersInfo.polygonLayer.renderers[key];
+        const rendererType = key.ucFirst();
+        const symbolSetting = document.getElementById('polygonLayer' + rendererType + 'SymbolSetting');
+        switch (renderer.type) {
+            case "simple":
+                symbolSetting.innerHTML = createPolygonLayerSymbolFields(0, rendererType);
+                document.getElementById(activeTocLayer + rendererType + 'Background_0').value = renderer.symbol.color.toHex();
+                document.getElementById(activeTocLayer + rendererType + 'Border_0').value = renderer.symbol.outline.color.toHex();
+                break;
+            case "unique-value":
+                symbolSetting.innerHTML = '';
+                if (!document.getElementById(activeTocLayer + rendererType + 'LayerField')) {
+                    symbolSetting.parentElement.prepend(document.createElement('hr'));
+                    symbolSetting.parentElement.prepend(createLayerFieldsSelect(layers.polygonLayer, activeTocLayer + rendererType + 'LayerField'));
+                }
+                document.getElementById(activeTocLayer + rendererType + 'LayerField').value = renderer.field;
+                for (let i = 0; i < renderer.uniqueValueInfos.length; i++) {
+                    symbolSetting.insertAdjacentHTML('beforeend', createPolygonLayerUniqueValueRendererSymbolSetting(i));
+                    document.getElementById(activeTocLayer + rendererType + 'FieldValue_' + i).value = renderer.uniqueValueInfos[i].value;
+                    document.getElementById(activeTocLayer + rendererType + 'Background_' + i).value = renderer.uniqueValueInfos[i].symbol.color.toHex();
+                    document.getElementById(activeTocLayer + rendererType + 'Border_' + i).value = renderer.uniqueValueInfos[i].symbol.outline.color.toHex();
+                }
+                break;
+            case "class-breaks":
+                symbolSetting.innerHTML = '';
+                if (!document.getElementById(activeTocLayer + rendererType + 'LayerField')) {
+                    symbolSetting.parentElement.prepend(document.createElement('hr'));
+                    symbolSetting.parentElement.prepend(createLayerFieldsSelect(layers.polygonLayer, activeTocLayer + rendererType + 'LayerField'));
+                }
+                document.getElementById(activeTocLayer + rendererType + 'LayerField').value = renderer.field;
+                for (let i = 0; i < renderer.classBreakInfos.length; i++) {
+                    symbolSetting.insertAdjacentHTML('beforeend', createPolygonLayerClassBreaksRendererSymbolSetting(i));
+                    document.getElementById(activeTocLayer + rendererType + 'FieldMinValue_' + i).value = renderer.classBreakInfos[i].minValue;
+                    document.getElementById(activeTocLayer + rendererType + 'FieldMaxValue_' + i).value = renderer.classBreakInfos[i].maxValue;
+                    document.getElementById(activeTocLayer + rendererType + 'Background_' + i).value = renderer.classBreakInfos[i].symbol.color.toHex();
+                    document.getElementById(activeTocLayer + rendererType + 'Border_' + i).value = renderer.classBreakInfos[i].symbol.outline.color.toHex();
+                }
+                break;
+        }
+    }
+    openTab(layers.polygonLayer.renderer.type.toPascalCase().lcFirst());
 }
+
+// function initPolygonLayerModal() {
+//     document.getElementById('polygonBackgroundColor').value = layers.polygonLayer.renderer.symbol.color.toHex();
+//     document.getElementById('polygonBorderColor').value = layers.polygonLayer.renderer.symbol.outline.color.toHex();
+// }
 
 function createPolylineLayerUniqueValueRendererFieldValue(index) {
     return `<div class="form-field"><label>Value: <input type="text" id="polylineLayerUniqueValueFieldValue_${index}"></label></div>`;
+}
+
+function createPolygonLayerUniqueValueRendererFieldValue(index) {
+    return `<div class="form-field"><label>Value: <input type="text" id="polygonLayerUniqueValueFieldValue_${index}"></label></div>`;
 }
 
 function createPolylineLayerClassBreaksRendererFieldValue(index) {
@@ -548,10 +687,24 @@ function createPolylineLayerClassBreaksRendererFieldValue(index) {
 `;
 }
 
+function createPolygonLayerClassBreaksRendererFieldValue(index) {
+    return `
+<div class="form-field"><label>Min Value: <input type="text" id="polygonLayerClassBreaksFieldMinValue_${index}"></label></div>
+<div class="form-field"><label>Max Value: <input type="text" id="polygonLayerClassBreaksFieldMaxValue_${index}"></label></div>
+`;
+}
+
 function createPolylineLayerSymbolFields(index, rendererType) {
     return `
     <div class="form-field"><label>Line thickness: <input type="number" id="polylineLayer${rendererType}Thickness_${index}"> px</label></div>
     <div class="form-field"><label>Line color: <input type="color" id="polylineLayer${rendererType}Color_${index}"></label></div>
+`;
+}
+
+function createPolygonLayerSymbolFields(index, rendererType) {
+    return `
+    <div class="form-field"><label>Fill color: <input type="color" id="polygonLayer${rendererType}Background_${index}"></label></div>
+    <div class="form-field"><label>Outline color: <input type="color" id="polygonLayer${rendererType}Border_${index}"></label></div>
 `;
 }
 
@@ -566,11 +719,25 @@ function createPolylineLayerUniqueValueRendererSymbolSetting(index) {
     return `<div class="symbol-setting" id="polylineLayerUniqueValueSymbolSetting_${index}">${fieldValue}${symbolFields}${deleteSymbolSettingButton}</div>`
 }
 
+function createPolygonLayerUniqueValueRendererSymbolSetting(index) {
+    const fieldValue = createPolygonLayerUniqueValueRendererFieldValue(index);
+    const symbolFields = createPolygonLayerSymbolFields(index, 'UniqueValue');
+    const deleteSymbolSettingButton = createDeleteSymbolSettingButton();
+    return `<div class="symbol-setting" id="polygonLayerUniqueValueSymbolSetting_${index}">${fieldValue}${symbolFields}${deleteSymbolSettingButton}</div>`
+}
+
 function createPolylineLayerClassBreaksRendererSymbolSetting(index) {
     const fieldValue = createPolylineLayerClassBreaksRendererFieldValue(index);
     const symbolFields = createPolylineLayerSymbolFields(index, 'ClassBreaks');
     const deleteSymbolSettingButton = createDeleteSymbolSettingButton();
     return `<div class="symbol-setting" id="polylineLayerUniqueValueSymbolSetting_${index}">${fieldValue}${symbolFields}${deleteSymbolSettingButton}`
+}
+
+function createPolygonLayerClassBreaksRendererSymbolSetting(index) {
+    const fieldValue = createPolygonLayerClassBreaksRendererFieldValue(index);
+    const symbolFields = createPolygonLayerSymbolFields(index, 'ClassBreaks');
+    const deleteSymbolSettingButton = createDeleteSymbolSettingButton();
+    return `<div class="symbol-setting" id="polygonLayerUniqueValueSymbolSetting_${index}">${fieldValue}${symbolFields}${deleteSymbolSettingButton}`
 }
 
 function addUniqueValueSymbol(symbolSettingId) {

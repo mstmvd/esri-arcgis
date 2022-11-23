@@ -276,13 +276,22 @@
             <h3>Polygon layer symbology</h3>
             <span class="close" onclick="closeModal('polygonLayerSymbologyModal')">&times;</span>
         </div>
-        <div class="form-field">
-            <label>Fill color: <input type="color" id="polygonBackgroundColor"></label>
+        <div class="tab-header">
+            <button class="tab-button" id="polygonLayerButtonOpenTabSimple" onclick="openTab('simple')">Simple</button>
+            <button class="tab-button" id="polygonLayerButtonOpenTabUniqueValue" onclick="openTab('uniqueValue')">Unique Value</button>
+            <button class="tab-button" id="polygonLayerButtonOpenTabClassBreaks" onclick="openTab('classBreaks')">Class Breaks</button>
         </div>
-        <div class="form-field">
-            <label>Outline color: <input type="color" id="polygonBorderColor"></label>
+        <div id="polygonLayerSimpleRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="polygonLayerSimpleSymbolSetting"></div>
         </div>
-        <hr>
+        <div id="polygonLayerUniqueValueRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="polygonLayerUniqueValueSymbolSetting"></div>
+            <button class="add-symbol-button" type="button" onclick="addUniqueValueSymbol('polygonLayerUniqueValueSymbolSetting')">Add symbol</button>
+        </div>
+        <div id="polygonLayerClassBreaksRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="polygonLayerClassBreaksSymbolSetting"></div>
+            <button class="add-symbol-button" type="button" onclick="addClassBreaksSymbol('polygonLayerClassBreaksSymbolSetting')">Add symbol</button>
+        </div>
         <div class="modal-footer">
             <button onclick="closeModal('polygonLayerSymbologyModal')">Cancel</button>
             <button onclick="saveSymbology('polygonLayer')">Confirm</button>
