@@ -10,6 +10,73 @@ const layers = {
     polygonLayer: {},
 };
 
+const defaultSymbols = {
+    pointLayer: {},
+    polylineLayer: {
+        type: "simple-line",
+        color: 'rgb(252, 182, 0)',
+        width: 4
+    },
+    polygonLayer: {}
+}
+
+const layersInfo = {
+    pointLayer: {
+        renderers: {
+            simple: {},
+            uniqueValue: {},
+            classBreaks: {},
+        }
+    },
+    polylineLayer: {
+        renderers: {
+            simple: {
+                symbol: defaultSymbols.polylineLayer
+            },
+            uniqueValue: {
+                field: "name",
+                defaultSymbol: defaultSymbols.polylineLayer,
+                uniqueValueInfos: [
+                    {
+                        value: "line1",
+                        symbol: {
+                            type: "simple-line",
+                            color: 'rgb(33,131,236)',
+                            width: 4
+                        }
+                    },
+                    {
+                        value: "line2",
+                        symbol: {
+                            type: "simple-line",
+                            color: 'rgb(252, 182, 0)',
+                            width: 4
+                        }
+                    }
+                ]
+            },
+            classBreaks: {
+                field: "ObjectID",
+                defaultSymbol: defaultSymbols.polylineLayer,
+                classBreakInfos: [
+                    {
+                        minValue: 0,
+                        maxValue: 100,
+                        symbol: defaultSymbols.polylineLayer
+                    }
+                ]
+            },
+        }
+    },
+    polygonLayer: {
+        renderers: {
+            simple: {},
+            uniqueValue: {},
+            classBreaks: {},
+        }
+    },
+}
+
 const layerButtons = [
     {text: 'Point Layer', layer: 'pointLayer'},
     {text: 'Polyline Layer', layer: 'polylineLayer'},
@@ -40,8 +107,13 @@ const pointsData = [
 const polylineData = [
     {
         id: 1,
-        path: [[-3.6805879, 40.4111599], [-3.6754979, 40.4084599], [-3.6774979, 40.4114599]],
-        name: 'Polyline'
+        path: [[-3.6805879, 40.4111599], [-3.6754979, 40.4084599]],
+        name: 'line1'
+    },
+    {
+        id: 2,
+        path: [[-3.6754979, 40.4084599], [-3.6774979, 40.4114599]],
+        name: 'line2'
     },
 ];
 const polygonData = [
@@ -63,6 +135,7 @@ const labelPlacement = {
 }
 
 let activeTocLayer;
+let activeModalTab;
 let globalSymbolUtils;
 
 require([
@@ -74,8 +147,15 @@ require([
     "esri/layers/support/LabelClass",
     "esri/layers/support/Field",
     "esri/widgets/Sketch",
-    "esri/symbols/support/symbolUtils"
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils) {
+    "esri/symbols/support/symbolUtils",
+    "esri/renderers/SimpleRenderer",
+    "esri/renderers/UniqueValueRenderer",
+    "esri/renderers/ClassBreaksRenderer",
+    "esri/renderers/support/UniqueValueInfo",
+    "esri/renderers/support/ClassBreakInfo"
+], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, UniqueValueInfo, ClassBreakInfo) {
+    window.UniqueValueInfo = UniqueValueInfo;
+    window.ClassBreakInfo = ClassBreakInfo;
     globalSymbolUtils = symbolUtils;
     sketchLayer = new GraphicsLayer();
 
@@ -109,6 +189,10 @@ require([
     });
 
     view.ui.add(document.getElementById('toc'), 'bottom-left');
+
+    layersInfo.polylineLayer.renderers.simple = new SimpleRenderer(layersInfo.polylineLayer.renderers.simple);
+    layersInfo.polylineLayer.renderers.uniqueValue = new UniqueValueRenderer(layersInfo.polylineLayer.renderers.uniqueValue);
+    layersInfo.polylineLayer.renderers.classBreaks = new ClassBreaksRenderer(layersInfo.polylineLayer.renderers.classBreaks);
 
     //Define layers
     layers.pointLayer = new FeatureLayer({
@@ -176,14 +260,7 @@ require([
                 },
             });
         }),
-        renderer: {
-            type: "simple",
-            symbol: {
-                type: "simple-line",
-                color: 'rgb(252, 182, 0)',
-                width: 4
-            }
-        },
+        renderer: layersInfo.polylineLayer.renderers.uniqueValue,
         fields: [
             {
                 name: "ObjectID",
@@ -267,7 +344,7 @@ require([
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 
     Object.keys(layers).forEach((layerName) => {
-        symbolUtils.renderPreviewHTML(layers[layerName].renderer.symbol.clone(), {
+        symbolUtils.renderPreviewHTML(getLayerSymbol(layers[layerName]), {
             node: document.getElementById(layerName + 'SymbologyIcon'),
             size: {
                 width: 24,
@@ -276,6 +353,22 @@ require([
         });
     });
 });
+
+function getLayerSymbol(layer) {
+    let symbol;
+    switch (layer.renderer.type) {
+        case 'simple':
+            symbol = layer.renderer.symbol;
+            break
+        case 'unique-value':
+            symbol = layer.renderer.uniqueValueInfos[0].symbol;
+            break;
+        case 'class-breaks':
+            symbol = layer.renderer.classBreakInfos[0].symbol;
+            break;
+    }
+    return symbol?.clone();
+}
 
 function showLayer(layerName) {
     Object.keys(layers).forEach(layer => {
@@ -321,8 +414,49 @@ function saveSymbology(layerName) {
             layers.pointLayer.renderer.symbol.text = pointIcon;
             break;
         case 'polylineLayer':
-            layers.polylineLayer.renderer.symbol.width = document.getElementById('polylineThickness').value;
-            layers.polylineLayer.renderer.symbol.color = document.getElementById('polylineColor').value;
+            for (const key of Object.keys(layersInfo.polylineLayer.renderers)) {
+                const rendererType = key.ucFirst();
+                const symbolsElement = document.getElementById(`polylineLayer${rendererType}SymbolSetting`);
+                let index = 0
+                switch (key) {
+                    case 'simple':
+                        layersInfo.polylineLayer.renderers.simple.symbol.width = document.getElementById(activeTocLayer + rendererType + 'Thickness_0').value;
+                        layersInfo.polylineLayer.renderers.simple.symbol.color = document.getElementById(activeTocLayer + rendererType + 'Color_0').value;
+                        break;
+                    case 'uniqueValue':
+                        layersInfo.polylineLayer.renderers.uniqueValue.field = document.getElementById(activeTocLayer + rendererType + 'LayerField').value;
+                        layersInfo.polylineLayer.renderers.uniqueValue.uniqueValueInfos = [];
+                        for (const symbolSetting of symbolsElement.children) {
+                            const i = symbolSetting.id.split('_')[1];
+                            layersInfo.polylineLayer.renderers.uniqueValue.uniqueValueInfos[index++] = new UniqueValueInfo({
+                                value: document.getElementById(activeTocLayer + rendererType + 'FieldValue_' + i).value,
+                                symbol: {
+                                    type: 'simple-line',
+                                    width: document.getElementById(activeTocLayer + rendererType + 'Thickness_' + i).value,
+                                    color: document.getElementById(activeTocLayer + rendererType + 'Color_' + i).value,
+                                }
+                            });
+                        }
+                        break;
+                    case 'classBreaks':
+                        layersInfo.polylineLayer.renderers.classBreaks.field = document.getElementById(activeTocLayer + rendererType + 'LayerField').value;
+                        layersInfo.polylineLayer.renderers.classBreaks.classBreakInfos = [];
+                        for (const symbolSetting of symbolsElement.children) {
+                            const i = symbolSetting.id.split('_')[1];
+                            layersInfo.polylineLayer.renderers.classBreaks.classBreakInfos[i] = new ClassBreakInfo({
+                                minValue: document.getElementById(activeTocLayer + rendererType + 'FieldMinValue_' + i).value,
+                                maxValue: document.getElementById(activeTocLayer + rendererType + 'FieldMaxValue_' + i).value,
+                                symbol: {
+                                    type: 'simple-line',
+                                    width: document.getElementById(activeTocLayer + rendererType + 'Thickness_' + i).value,
+                                    color: document.getElementById(activeTocLayer + rendererType + 'Color_' + i).value,
+                                }
+                            });
+                        }
+                        break;
+                }
+            }
+            layers.polylineLayer.renderer = layersInfo.polylineLayer.renderers[activeModalTab];
             break;
         case 'polygonLayer':
             layers.polygonLayer.renderer.symbol.color = document.getElementById('polygonBackgroundColor').value;
@@ -330,13 +464,14 @@ function saveSymbology(layerName) {
             break;
     }
     document.getElementById(layerName + 'SymbologyIcon').innerHTML = ''
-    globalSymbolUtils.renderPreviewHTML(layers[layerName].renderer.symbol.clone(), {
+    globalSymbolUtils.renderPreviewHTML(getLayerSymbol(layers[layerName]), {
         node: document.getElementById(layerName + 'SymbologyIcon'),
         size: {
             width: 24,
             height: 4
         }
     });
+    activeModalTab = undefined;
     closeModal(layerName + 'SymbologyModal');
 }
 
@@ -353,13 +488,120 @@ function initPointLayerModal() {
 }
 
 function initPolylineLayerModal() {
-    document.getElementById('polylineThickness').value = layers.polylineLayer.renderer.symbol.width;
-    document.getElementById('polylineColor').value = layers.polylineLayer.renderer.symbol.color.toHex();
+    for (const key of Object.keys(layersInfo.polylineLayer.renderers)) {
+        const renderer = layersInfo.polylineLayer.renderers[key];
+        const rendererType = key.ucFirst();
+        const symbolSetting = document.getElementById('polylineLayer' + rendererType + 'SymbolSetting');
+        switch (renderer.type) {
+            case "simple":
+                symbolSetting.innerHTML = createPolylineLayerSymbolFields(0, rendererType);
+                document.getElementById(activeTocLayer + rendererType + 'Thickness_0').value = renderer.symbol.width;
+                document.getElementById(activeTocLayer + rendererType + 'Color_0').value = renderer.symbol.color.toHex();
+                break;
+            case "unique-value":
+                symbolSetting.innerHTML = '';
+                if (!document.getElementById(activeTocLayer + rendererType + 'LayerField')) {
+                    symbolSetting.parentElement.prepend(document.createElement('hr'));
+                    symbolSetting.parentElement.prepend(createLayerFieldsSelect(layers.polylineLayer, activeTocLayer + rendererType + 'LayerField'));
+                }
+                document.getElementById(activeTocLayer + rendererType + 'LayerField').value = renderer.field;
+                for (let i = 0; i < renderer.uniqueValueInfos.length; i++) {
+                    symbolSetting.insertAdjacentHTML('beforeend', createPolylineLayerUniqueValueRendererSymbolSetting(i));
+                    document.getElementById(activeTocLayer + rendererType + 'FieldValue_' + i).value = renderer.uniqueValueInfos[i].value;
+                    document.getElementById(activeTocLayer + rendererType + 'Thickness_' + i).value = renderer.uniqueValueInfos[i].symbol.width;
+                    document.getElementById(activeTocLayer + rendererType + 'Color_' + i).value = renderer.uniqueValueInfos[i].symbol.color.toHex();
+                }
+                break;
+            case "class-breaks":
+                symbolSetting.innerHTML = '';
+                if (!document.getElementById(activeTocLayer + rendererType + 'LayerField')) {
+                    symbolSetting.parentElement.prepend(document.createElement('hr'));
+                    symbolSetting.parentElement.prepend(createLayerFieldsSelect(layers.polylineLayer, activeTocLayer + rendererType + 'LayerField'));
+                }
+                document.getElementById(activeTocLayer + rendererType + 'LayerField').value = renderer.field;
+                for (let i = 0; i < renderer.classBreakInfos.length; i++) {
+                    symbolSetting.insertAdjacentHTML('beforeend', createPolylineLayerClassBreaksRendererSymbolSetting(i));
+                    document.getElementById(activeTocLayer + rendererType + 'FieldMinValue_' + i).value = renderer.classBreakInfos[i].minValue;
+                    document.getElementById(activeTocLayer + rendererType + 'FieldMaxValue_' + i).value = renderer.classBreakInfos[i].maxValue;
+                    document.getElementById(activeTocLayer + rendererType + 'Thickness_' + i).value = renderer.classBreakInfos[i].symbol.width;
+                    document.getElementById(activeTocLayer + rendererType + 'Color_' + i).value = renderer.classBreakInfos[i].symbol.color.toHex();
+                }
+                break;
+        }
+    }
+    openTab(layers.polylineLayer.renderer.type.toPascalCase().lcFirst());
 }
 
 function initPolygonLayerModal() {
     document.getElementById('polygonBackgroundColor').value = layers.polygonLayer.renderer.symbol.color.toHex();
     document.getElementById('polygonBorderColor').value = layers.polygonLayer.renderer.symbol.outline.color.toHex();
+}
+
+function createPolylineLayerUniqueValueRendererFieldValue(index) {
+    return `<div class="form-field"><label>Value: <input type="text" id="polylineLayerUniqueValueFieldValue_${index}"></label></div>`;
+}
+
+function createPolylineLayerClassBreaksRendererFieldValue(index) {
+    return `
+<div class="form-field"><label>Min Value: <input type="text" id="polylineLayerClassBreaksFieldMinValue_${index}"></label></div>
+<div class="form-field"><label>Max Value: <input type="text" id="polylineLayerClassBreaksFieldMaxValue_${index}"></label></div>
+`;
+}
+
+function createPolylineLayerSymbolFields(index, rendererType) {
+    return `
+    <div class="form-field"><label>Line thickness: <input type="number" id="polylineLayer${rendererType}Thickness_${index}"> px</label></div>
+    <div class="form-field"><label>Line color: <input type="color" id="polylineLayer${rendererType}Color_${index}"></label></div>
+`;
+}
+
+function createDeleteSymbolSettingButton() {
+    return `<button class="delete-symbol-setting" onclick="this.parentElement.remove()">Delete</button>`;
+}
+
+function createPolylineLayerUniqueValueRendererSymbolSetting(index) {
+    const fieldValue = createPolylineLayerUniqueValueRendererFieldValue(index);
+    const symbolFields = createPolylineLayerSymbolFields(index, 'UniqueValue');
+    const deleteSymbolSettingButton = createDeleteSymbolSettingButton();
+    return `<div class="symbol-setting" id="polylineLayerUniqueValueSymbolSetting_${index}">${fieldValue}${symbolFields}${deleteSymbolSettingButton}</div>`
+}
+
+function createPolylineLayerClassBreaksRendererSymbolSetting(index) {
+    const fieldValue = createPolylineLayerClassBreaksRendererFieldValue(index);
+    const symbolFields = createPolylineLayerSymbolFields(index, 'ClassBreaks');
+    const deleteSymbolSettingButton = createDeleteSymbolSettingButton();
+    return `<div class="symbol-setting" id="polylineLayerUniqueValueSymbolSetting_${index}">${fieldValue}${symbolFields}${deleteSymbolSettingButton}`
+}
+
+function addUniqueValueSymbol(symbolSettingId) {
+    const symbolSetting = document.getElementById(symbolSettingId);
+    const index = symbolSetting.children.length;
+    symbolSetting.insertAdjacentHTML('beforeend', createPolylineLayerUniqueValueRendererSymbolSetting(index));
+}
+
+function addClassBreaksSymbol(symbolSettingId) {
+    const symbolSetting = document.getElementById(symbolSettingId);
+    const index = symbolSetting.children.length;
+    symbolSetting.insertAdjacentHTML('beforeend', createPolylineLayerClassBreaksRendererSymbolSetting(index));
+}
+
+function createLayerFieldsSelect(layer, id) {
+    const fields = layers[activeTocLayer].fields;
+    const formField = document.createElement('div');
+    formField.classList.add('form-field');
+    const label = document.createElement('label');
+    label.innerHTML = 'Field: ';
+    const fieldSelect = document.createElement('select');
+    fieldSelect.id = id;
+    fields.forEach((field) => {
+        const option = document.createElement('option');
+        option.value = field.name;
+        option.innerHTML = field.name;
+        fieldSelect.append(option);
+    });
+    label.append(fieldSelect);
+    formField.append(label);
+    return formField;
 }
 
 function dragStart(element, event) {
@@ -468,8 +710,38 @@ function openLayerEditModal() {
 }
 
 Object.defineProperty(String.prototype, 'ucFirst', {
-    value: function() {
+    value: function () {
         return this.charAt(0).toUpperCase() + this.slice(1);
     },
     enumerable: false
 });
+
+Object.defineProperty(String.prototype, 'lcFirst', {
+    value: function () {
+        return this.charAt(0).toLowerCase() + this.slice(1);
+    },
+    enumerable: false
+});
+
+Object.defineProperty(String.prototype, 'toPascalCase', {
+    value: function () {
+        return this.replace(/\w+/g, function (w) {
+            return w[0].toUpperCase() + w.slice(1).toLowerCase();
+        }).replace(/-/, "");
+    },
+    enumerable: false
+});
+
+function openTab(tab) {
+    activeModalTab = tab.lcFirst();
+    const modal = document.getElementById(activeTocLayer + 'SymbologyModal');
+    for (let el of modal.getElementsByClassName('renderer-setting')) {
+        el.classList.add('hidden');
+    }
+    for (let el of modal.getElementsByClassName('tab-button')) {
+        el.classList.remove('tab-button-active');
+    }
+    const button = document.getElementById(activeTocLayer + 'ButtonOpenTab' + tab.ucFirst())
+    button.classList.add('tab-button-active');
+    document.getElementById(activeTocLayer + tab.ucFirst() + 'RendererSetting').classList.remove('hidden');
+}

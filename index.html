@@ -248,13 +248,22 @@
             <h3>Polyline layer symbology</h3>
             <span class="close" onclick="closeModal('polylineLayerSymbologyModal')">&times;</span>
         </div>
-        <div class="form-field">
-            <label>Line thickness: <input type="number" id="polylineThickness"> px</label>
+        <div class="tab-header">
+            <button class="tab-button" id="polylineLayerButtonOpenTabSimple" onclick="openTab('simple')">Simple</button>
+            <button class="tab-button" id="polylineLayerButtonOpenTabUniqueValue" onclick="openTab('uniqueValue')">Unique Value</button>
+            <button class="tab-button" id="polylineLayerButtonOpenTabClassBreaks" onclick="openTab('classBreaks')">Class Breaks</button>
         </div>
-        <div class="form-field">
-            <label>Line color: <input type="color" id="polylineColor"></label>
+        <div id="polylineLayerSimpleRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="polylineLayerSimpleSymbolSetting"></div>
         </div>
-        <hr>
+        <div id="polylineLayerUniqueValueRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="polylineLayerUniqueValueSymbolSetting"></div>
+            <button class="add-symbol-button" type="button" onclick="addUniqueValueSymbol('polylineLayerUniqueValueSymbolSetting')">Add symbol</button>
+        </div>
+        <div id="polylineLayerClassBreaksRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="polylineLayerClassBreaksSymbolSetting"></div>
+            <button class="add-symbol-button" type="button" onclick="addClassBreaksSymbol('polylineLayerClassBreaksSymbolSetting')">Add symbol</button>
+        </div>
         <div class="modal-footer">
             <button onclick="closeModal('polylineLayerSymbologyModal')">Cancel</button>
             <button onclick="saveSymbology('polylineLayer')">Confirm</button>

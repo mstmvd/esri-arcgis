@@ -115,12 +115,40 @@ body,
     width: 400px;
 }
 
+.modal-content .symbol-setting-container {
+    max-height: 60vh;
+    overflow: auto;
+    text-align: end;
+}
+
+.modal-content .delete-symbol-setting {
+    position: absolute;
+    right: 0;
+    bottom: 8px;
+}
+
+.modal-content hr {
+    margin: 8px 0;
+}
+
+.modal-content .symbol-setting {
+    border-bottom: 1px dashed #ababab;
+    padding-bottom: 8px;
+    margin: 8px 0;
+    position: relative;
+}
+
 .modal-header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
+}
+
+.add-symbol-button {
+    width: 100%;
+    min-height: 32px;
 }
 
 .close {
@@ -155,6 +183,8 @@ body,
 
 .modal .form-field {
     margin-bottom: 16px;
+    width: 100%;
+    text-align: start;
 }
 
 .modal .form-field:last-child {
@@ -216,4 +246,30 @@ body,
 
 .layer-option-menu button:last-child {
     margin-bottom: 0;
+}
+
+.tab-header {
+    background-color: #ededed;
+    border: 1px solid #bababa;
+}
+
+.tab-header .tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.tab-header .tab-button-active {
+    background-color: #c5c5c5;
+}
+
+.renderer-setting {
+    padding: 8px;
+    border: 1px solid #bababa;
+    border-top: none;
+}
+
+.hidden {
+    display: none;
 }
