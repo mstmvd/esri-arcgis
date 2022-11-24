@@ -35,207 +35,238 @@
     </li>
 </ul>
 
+<div id="selectIconModal" class="modal" role="dialog" style="z-index: 2">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Select icon</h3>
+            <span class="close" onclick="closeModal('selectIconModal')">&times;</span>
+        </div>
+        <div class="form-field">
+            <label>Icon: </label><div class="icon-list" id="iconList">
+            <div data-code="\ue600" class="icon esri-icon-close" onclick="setIcon(this)"></div>
+            <div data-code="\ue601" class="icon esri-icon-drag-horizontal" onclick="setIcon(this)"></div>
+            <div data-code="\ue602" class="icon esri-icon-drag-vertical" onclick="setIcon(this)"></div>
+            <div data-code="\ue603" class="icon esri-icon-handle-horizontal" onclick="setIcon(this)"></div>
+            <div data-code="\ue604" class="icon esri-icon-handle-vertical" onclick="setIcon(this)"></div>
+            <div data-code="\ue605" class="icon esri-icon-check-mark" onclick="setIcon(this)"></div>
+            <div data-code="\ue606" class="icon esri-icon-left-triangle-arrow" onclick="setIcon(this)"></div>
+            <div data-code="\ue607" class="icon esri-icon-right-triangle-arrow" onclick="setIcon(this)"></div>
+            <div data-code="\ue608" class="icon esri-icon-down-arrow" onclick="setIcon(this)"></div>
+            <div data-code="\ue609" class="icon esri-icon-up-arrow" onclick="setIcon(this)"></div>
+            <div data-code="\ue60a" class="icon esri-icon-overview-arrow-bottom-left" onclick="setIcon(this)"></div>
+            <div data-code="\ue60b" class="icon esri-icon-overview-arrow-bottom-right" onclick="setIcon(this)"></div>
+            <div data-code="\ue60c" class="icon esri-icon-overview-arrow-top-left" onclick="setIcon(this)"></div>
+            <div data-code="\ue60d" class="icon esri-icon-overview-arrow-top-right" onclick="setIcon(this)"></div>
+            <div data-code="\ue60e" class="icon esri-icon-maximize" onclick="setIcon(this)"></div>
+            <div data-code="\ue60f" class="icon esri-icon-minimize" onclick="setIcon(this)"></div>
+            <div data-code="\ue610" class="icon esri-icon-checkbox-unchecked" onclick="setIcon(this)"></div>
+            <div data-code="\ue611" class="icon esri-icon-checkbox-checked" onclick="setIcon(this)"></div>
+            <div data-code="\ue612" class="icon esri-icon-radio-unchecked" onclick="setIcon(this)"></div>
+            <div data-code="\ue613" class="icon esri-icon-radio-checked" onclick="setIcon(this)"></div>
+            <div data-code="\ue614" class="icon esri-icon-up-arrow-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue615" class="icon esri-icon-down-arrow-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue616" class="icon esri-icon-left-arrow-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue617" class="icon esri-icon-right-arrow-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue618" class="icon esri-icon-zoom-out-fixed" onclick="setIcon(this)"></div>
+            <div data-code="\ue619" class="icon esri-icon-zoom-in-fixed" onclick="setIcon(this)"></div>
+            <div data-code="\ue61a" class="icon esri-icon-refresh" onclick="setIcon(this)"></div>
+            <div data-code="\ue61b" class="icon esri-icon-edit" onclick="setIcon(this)"></div>
+            <div data-code="\ue61c" class="icon esri-icon-authorize" onclick="setIcon(this)"></div>
+            <div data-code="\ue61d" class="icon esri-icon-map-pin" onclick="setIcon(this)"></div>
+            <div data-code="\ue61e" class="icon esri-icon-blank-map-pin" onclick="setIcon(this)"></div>
+            <div data-code="\ue61f" class="icon esri-icon-table" onclick="setIcon(this)"></div>
+            <div data-code="\ue620" class="icon esri-icon-plus" onclick="setIcon(this)"></div>
+            <div data-code="\ue621" class="icon esri-icon-minus" onclick="setIcon(this)"></div>
+            <div data-code="\ue622" class="icon esri-icon-beginning" onclick="setIcon(this)"></div>
+            <div data-code="\ue623" class="icon esri-icon-reverse" onclick="setIcon(this)"></div>
+            <div data-code="\ue624" class="icon esri-icon-pause" onclick="setIcon(this)"></div>
+            <div data-code="\ue625" class="icon esri-icon-play" onclick="setIcon(this)"></div>
+            <div data-code="\ue626" class="icon esri-icon-forward" onclick="setIcon(this)"></div>
+            <div data-code="\ue627" class="icon esri-icon-end" onclick="setIcon(this)"></div>
+            <div data-code="\ue628" class="icon esri-icon-erase" onclick="setIcon(this)"></div>
+            <div data-code="\ue629" class="icon esri-icon-up-down-arrows" onclick="setIcon(this)"></div>
+            <div data-code="\ue62a" class="icon esri-icon-left" onclick="setIcon(this)"></div>
+            <div data-code="\ue62b" class="icon esri-icon-right" onclick="setIcon(this)"></div>
+            <div data-code="\ue62c" class="icon esri-icon-announcement" onclick="setIcon(this)"></div>
+            <div data-code="\ue62d" class="icon esri-icon-notice-round" onclick="setIcon(this)"></div>
+            <div data-code="\ue62e" class="icon esri-icon-notice-triangle" onclick="setIcon(this)"></div>
+            <div data-code="\ue62f" class="icon esri-icon-home" onclick="setIcon(this)"></div>
+            <div data-code="\ue630" class="icon esri-icon-locate" onclick="setIcon(this)"></div>
+            <div data-code="\ue631" class="icon esri-icon-expand" onclick="setIcon(this)"></div>
+            <div data-code="\ue632" class="icon esri-icon-collapse" onclick="setIcon(this)"></div>
+            <div data-code="\ue633" class="icon esri-icon-layer-list" onclick="setIcon(this)"></div>
+            <div data-code="\ue634" class="icon esri-icon-basemap" onclick="setIcon(this)"></div>
+            <div data-code="\ue635" class="icon esri-icon-globe" onclick="setIcon(this)"></div>
+            <div data-code="\ue636" class="icon esri-icon-applications" onclick="setIcon(this)"></div>
+            <div data-code="\ue637" class="icon esri-icon-arrow-up-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue638" class="icon esri-icon-arrow-down-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue639" class="icon esri-icon-arrow-left-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue63a" class="icon esri-icon-arrow-right-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue63b" class="icon esri-icon-minus-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue63c" class="icon esri-icon-plus-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue63d" class="icon esri-icon-add-attachment" onclick="setIcon(this)"></div>
+            <div data-code="\ue63e" class="icon esri-icon-attachment" onclick="setIcon(this)"></div>
+            <div data-code="\ue63f" class="icon esri-icon-calendar" onclick="setIcon(this)"></div>
+            <div data-code="\ue640" class="icon esri-icon-close-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue641" class="icon esri-icon-browser" onclick="setIcon(this)"></div>
+            <div data-code="\ue642" class="icon esri-icon-collection" onclick="setIcon(this)"></div>
+            <div data-code="\ue643" class="icon esri-icon-comment" onclick="setIcon(this)"></div>
+            <div data-code="\ue644" class="icon esri-icon-configure-popup" onclick="setIcon(this)"></div>
+            <div data-code="\ue645" class="icon esri-icon-contact" onclick="setIcon(this)"></div>
+            <div data-code="\ue646" class="icon esri-icon-dashboard" onclick="setIcon(this)"></div>
+            <div data-code="\ue647" class="icon esri-icon-deny" onclick="setIcon(this)"></div>
+            <div data-code="\ue648" class="icon esri-icon-description" onclick="setIcon(this)"></div>
+            <div data-code="\ue649" class="icon esri-icon-directions" onclick="setIcon(this)"></div>
+            <div data-code="\ue64a" class="icon esri-icon-directions2" onclick="setIcon(this)"></div>
+            <div data-code="\ue64b" class="icon esri-icon-documentation" onclick="setIcon(this)"></div>
+            <div data-code="\ue64c" class="icon esri-icon-duplicate" onclick="setIcon(this)"></div>
+            <div data-code="\ue64d" class="icon esri-icon-review" onclick="setIcon(this)"></div>
+            <div data-code="\ue64e" class="icon esri-icon-environment-settings" onclick="setIcon(this)"></div>
+            <div data-code="\ue64f" class="icon esri-icon-error" onclick="setIcon(this)"></div>
+            <div data-code="\ue650" class="icon esri-icon-error2" onclick="setIcon(this)"></div>
+            <div data-code="\ue651" class="icon esri-icon-experimental" onclick="setIcon(this)"></div>
+            <div data-code="\ue652" class="icon esri-icon-feature-layer" onclick="setIcon(this)"></div>
+            <div data-code="\ue653" class="icon esri-icon-filter" onclick="setIcon(this)"></div>
+            <div data-code="\ue654" class="icon esri-icon-grant" onclick="setIcon(this)"></div>
+            <div data-code="\ue655" class="icon esri-icon-group" onclick="setIcon(this)"></div>
+            <div data-code="\ue656" class="icon esri-icon-key" onclick="setIcon(this)"></div>
+            <div data-code="\ue657" class="icon esri-icon-labels" onclick="setIcon(this)"></div>
+            <div data-code="\ue658" class="icon esri-icon-tag" onclick="setIcon(this)"></div>
+            <div data-code="\ue659" class="icon esri-icon-layers" onclick="setIcon(this)"></div>
+            <div data-code="\ue65a" class="icon esri-icon-left-arrow" onclick="setIcon(this)"></div>
+            <div data-code="\ue65b" class="icon esri-icon-right-arrow" onclick="setIcon(this)"></div>
+            <div data-code="\ue65c" class="icon esri-icon-link-external" onclick="setIcon(this)"></div>
+            <div data-code="\ue65d" class="icon esri-icon-link" onclick="setIcon(this)"></div>
+            <div data-code="\ue65e" class="icon esri-icon-loading-indicator" onclick="setIcon(this)"></div>
+            <div data-code="\ue65f" class="icon esri-icon-maps" onclick="setIcon(this)"></div>
+            <div data-code="\ue660" class="icon esri-icon-marketplace" onclick="setIcon(this)"></div>
+            <div data-code="\ue661" class="icon esri-icon-media" onclick="setIcon(this)"></div>
+            <div data-code="\ue662" class="icon esri-icon-media2" onclick="setIcon(this)"></div>
+            <div data-code="\ue663" class="icon esri-icon-menu" onclick="setIcon(this)"></div>
+            <div data-code="\ue664" class="icon esri-icon-mobile" onclick="setIcon(this)"></div>
+            <div data-code="\ue665" class="icon esri-icon-phone" onclick="setIcon(this)"></div>
+            <div data-code="\ue666" class="icon esri-icon-navigation" onclick="setIcon(this)"></div>
+            <div data-code="\ue667" class="icon esri-icon-pan" onclick="setIcon(this)"></div>
+            <div data-code="\ue668" class="icon esri-icon-printer" onclick="setIcon(this)"></div>
+            <div data-code="\ue669" class="icon esri-icon-pie-chart" onclick="setIcon(this)"></div>
+            <div data-code="\ue66a" class="icon esri-icon-chart" onclick="setIcon(this)"></div>
+            <div data-code="\ue66b" class="icon esri-icon-line-chart" onclick="setIcon(this)"></div>
+            <div data-code="\ue66c" class="icon esri-icon-question" onclick="setIcon(this)"></div>
+            <div data-code="\ue66d" class="icon esri-icon-resend-invitation" onclick="setIcon(this)"></div>
+            <div data-code="\ue66e" class="icon esri-icon-rotate" onclick="setIcon(this)"></div>
+            <div data-code="\ue66f" class="icon esri-icon-save" onclick="setIcon(this)"></div>
+            <div data-code="\ue670" class="icon esri-icon-settings" onclick="setIcon(this)"></div>
+            <div data-code="\ue671" class="icon esri-icon-settings2" onclick="setIcon(this)"></div>
+            <div data-code="\ue672" class="icon esri-icon-share" onclick="setIcon(this)"></div>
+            <div data-code="\ue673" class="icon esri-icon-sign-out" onclick="setIcon(this)"></div>
+            <div data-code="\ue674" class="icon esri-icon-support" onclick="setIcon(this)"></div>
+            <div data-code="\ue675" class="icon esri-icon-user" onclick="setIcon(this)"></div>
+            <div data-code="\ue676" class="icon esri-icon-time-clock" onclick="setIcon(this)"></div>
+            <div data-code="\ue677" class="icon esri-icon-trash" onclick="setIcon(this)"></div>
+            <div data-code="\ue678" class="icon esri-icon-upload" onclick="setIcon(this)"></div>
+            <div data-code="\ue679" class="icon esri-icon-download" onclick="setIcon(this)"></div>
+            <div data-code="\ue67a" class="icon esri-icon-zoom-in-magnifying-glass" onclick="setIcon(this)"></div>
+            <div data-code="\ue67b" class="icon esri-icon-search" onclick="setIcon(this)"></div>
+            <div data-code="\ue67c" class="icon esri-icon-zoom-out-magnifying-glass" onclick="setIcon(this)"></div>
+            <div data-code="\ue67d" class="icon esri-icon-locked" onclick="setIcon(this)"></div>
+            <div data-code="\ue67e" class="icon esri-icon-unlocked" onclick="setIcon(this)"></div>
+            <div data-code="\ue67f" class="icon esri-icon-favorites" onclick="setIcon(this)"></div>
+            <div data-code="\ue680" class="icon esri-icon-compass" onclick="setIcon(this)"></div>
+            <div data-code="\ue681" class="icon esri-icon-down" onclick="setIcon(this)"></div>
+            <div data-code="\ue682" class="icon esri-icon-up" onclick="setIcon(this)"></div>
+            <div data-code="\ue683" class="icon esri-icon-chat" onclick="setIcon(this)"></div>
+            <div data-code="\ue684" class="icon esri-icon-dock-bottom" onclick="setIcon(this)"></div>
+            <div data-code="\ue685" class="icon esri-icon-dock-left" onclick="setIcon(this)"></div>
+            <div data-code="\ue686" class="icon esri-icon-dock-right" onclick="setIcon(this)"></div>
+            <div data-code="\ue687" class="icon esri-icon-organization" onclick="setIcon(this)"></div>
+            <div data-code="\ue688" class="icon esri-icon-north-navigation" onclick="setIcon(this)"></div>
+            <div data-code="\ue689" class="icon esri-icon-locate-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue68a" class="icon esri-icon-dial" onclick="setIcon(this)"></div>
+            <div data-code="\ue68b" class="icon esri-icon-polygon" onclick="setIcon(this)"></div>
+            <div data-code="\ue68c" class="icon esri-icon-polyline" onclick="setIcon(this)"></div>
+            <div data-code="\ue68d" class="icon esri-icon-visible" onclick="setIcon(this)"></div>
+            <div data-code="\ue68e" class="icon esri-icon-non-visible" onclick="setIcon(this)"></div>
+            <div data-code="\ue68f" class="icon esri-icon-link-vertical" onclick="setIcon(this)"></div>
+            <div data-code="\ue690" class="icon esri-icon-unlocked-link-vertical" onclick="setIcon(this)"></div>
+            <div data-code="\ue691" class="icon esri-icon-link-horizontal" onclick="setIcon(this)"></div>
+            <div data-code="\ue692" class="icon esri-icon-unlocked-link-horizontal" onclick="setIcon(this)"></div>
+            <div data-code="\ue693" class="icon esri-icon-swap" onclick="setIcon(this)"></div>
+            <div data-code="\ue694" class="icon esri-icon-cta-link-external" onclick="setIcon(this)"></div>
+            <div data-code="\ue695" class="icon esri-icon-reply" onclick="setIcon(this)"></div>
+            <div data-code="\ue696" class="icon esri-icon-public" onclick="setIcon(this)"></div>
+            <div data-code="\ue697" class="icon esri-icon-share2" onclick="setIcon(this)"></div>
+            <div data-code="\ue698" class="icon esri-icon-launch-link-external" onclick="setIcon(this)"></div>
+            <div data-code="\ue699" class="icon esri-icon-rotate-back" onclick="setIcon(this)"></div>
+            <div data-code="\ue69a" class="icon esri-icon-pan2" onclick="setIcon(this)"></div>
+            <div data-code="\ue69b" class="icon esri-icon-tracking" onclick="setIcon(this)"></div>
+            <div data-code="\ue69c" class="icon esri-icon-expand2" onclick="setIcon(this)"></div>
+            <div data-code="\ue69d" class="icon esri-icon-arrow-down" onclick="setIcon(this)"></div>
+            <div data-code="\ue69e" class="icon esri-icon-arrow-up" onclick="setIcon(this)"></div>
+            <div data-code="\ue69f" class="icon esri-icon-hollow-eye" onclick="setIcon(this)"></div>
+            <div data-code="\ue6a0" class="icon esri-icon-play-circled" onclick="setIcon(this)"></div>
+            <div data-code="\ue6a1" class="icon esri-icon-volume-off" onclick="setIcon(this)"></div>
+            <div data-code="\ue6a2" class="icon esri-icon-volume-on" onclick="setIcon(this)"></div>
+            <div data-code="\ue900" class="icon esri-icon-bookmark" onclick="setIcon(this)"></div>
+            <div data-code="\ue901" class="icon esri-icon-lightbulb" onclick="setIcon(this)"></div>
+            <div data-code="\ue902" class="icon esri-icon-sketch-rectangle" onclick="setIcon(this)"></div>
+            <div data-code="\ue903" class="icon esri-icon-north-navigation-filled" onclick="setIcon(this)"></div>
+            <div data-code="\ue904" class="icon esri-icon-default-action" onclick="setIcon(this)"></div>
+            <div data-code="\ue905" class="icon esri-icon-undo" onclick="setIcon(this)"></div>
+            <div data-code="\ue906" class="icon esri-icon-redo" onclick="setIcon(this)"></div>
+            <div data-code="\ue907" class="icon esri-icon-cursor" onclick="setIcon(this)"></div>
+            <div data-code="\ue908" class="icon esri-icon-cursor-filled" onclick="setIcon(this)"></div>
+            <div data-code="\ue909" class="icon esri-icon-measure-line" onclick="setIcon(this)"></div>
+            <div data-code="\ue90a" class="icon esri-icon-measure" onclick="setIcon(this)"></div>
+            <div data-code="\ue90b" class="icon esri-icon-measure-area" onclick="setIcon(this)"></div>
+            <div data-code="\ue90c" class="icon esri-icon-legend" onclick="setIcon(this)"></div>
+            <div data-code="\ue90d" class="icon esri-icon-sliders" onclick="setIcon(this)"></div>
+            <div data-code="\ue90e" class="icon esri-icon-sliders-horizontal" onclick="setIcon(this)"></div>
+            <div data-code="\ue90f" class="icon esri-icon-cursor-marquee" onclick="setIcon(this)"></div>
+            <div data-code="\ue910" class="icon esri-icon-lasso" onclick="setIcon(this)"></div>
+            <div data-code="\ue911" class="icon esri-icon-elevation-profile" onclick="setIcon(this)"></div>
+            <div data-code="\ue912" class="icon esri-icon-line-of-sight" onclick="setIcon(this)"></div>
+            <div data-code="\ue913" class="icon esri-icon-slice" onclick="setIcon(this)"></div>
+            <div data-code="\ue914" class="icon esri-icon-zoom-to-object" onclick="setIcon(this)"></div>
+            <div data-code="\ue915" class="icon esri-icon-urban-model" onclick="setIcon(this)"></div>
+            <div data-code="\ue916" class="icon esri-icon-measure-building-height-shadow" onclick="setIcon(this)"></div>
+            <div data-code="\ue917" class="icon esri-icon-partly-cloudy" onclick="setIcon(this)"></div>
+        </div>
+        </div>
+        <hr/>
+        <div class="modal-footer">
+            <button onclick="closeModal('selectIconModal')">Cancel</button>
+            <button onclick="selectIcon()">Confirm</button>
+        </div>
+    </div>
+</div>
+
 <div id="pointLayerSymbologyModal" class="modal" role="dialog">
     <div class="modal-content">
         <div class="modal-header">
             <h3>Point layer symbology</h3>
             <span class="close" onclick="closeModal('pointLayerSymbologyModal')">&times;</span>
         </div>
-        <div class="form-field">
-            <label>Size: <input type="number" id="pointSize"></label>
+        <div class="tab-header">
+            <button class="tab-button" id="pointLayerButtonOpenTabSimple" onclick="openTab('simple')">Simple</button>
+            <button class="tab-button" id="pointLayerButtonOpenTabUniqueValue" onclick="openTab('uniqueValue')">Unique Value</button>
+            <button class="tab-button" id="pointLayerButtonOpenTabClassBreaks" onclick="openTab('classBreaks')">Class Breaks</button>
+<!--            <button class="tab-button" id="pointLayerButtonOpenTabHeatmap" onclick="openTab('heatmap')">Heatmap</button>-->
         </div>
-        <div class="form-field">
-            <label>Icon: </label><div class="icon-list" id="iconList">
-                <div data-code="\ue600" class="icon esri-icon-close" onclick="setIcon(this)"></div>
-                <div data-code="\ue601" class="icon esri-icon-drag-horizontal" onclick="setIcon(this)"></div>
-                <div data-code="\ue602" class="icon esri-icon-drag-vertical" onclick="setIcon(this)"></div>
-                <div data-code="\ue603" class="icon esri-icon-handle-horizontal" onclick="setIcon(this)"></div>
-                <div data-code="\ue604" class="icon esri-icon-handle-vertical" onclick="setIcon(this)"></div>
-                <div data-code="\ue605" class="icon esri-icon-check-mark" onclick="setIcon(this)"></div>
-                <div data-code="\ue606" class="icon esri-icon-left-triangle-arrow" onclick="setIcon(this)"></div>
-                <div data-code="\ue607" class="icon esri-icon-right-triangle-arrow" onclick="setIcon(this)"></div>
-                <div data-code="\ue608" class="icon esri-icon-down-arrow" onclick="setIcon(this)"></div>
-                <div data-code="\ue609" class="icon esri-icon-up-arrow" onclick="setIcon(this)"></div>
-                <div data-code="\ue60a" class="icon esri-icon-overview-arrow-bottom-left" onclick="setIcon(this)"></div>
-                <div data-code="\ue60b" class="icon esri-icon-overview-arrow-bottom-right" onclick="setIcon(this)"></div>
-                <div data-code="\ue60c" class="icon esri-icon-overview-arrow-top-left" onclick="setIcon(this)"></div>
-                <div data-code="\ue60d" class="icon esri-icon-overview-arrow-top-right" onclick="setIcon(this)"></div>
-                <div data-code="\ue60e" class="icon esri-icon-maximize" onclick="setIcon(this)"></div>
-                <div data-code="\ue60f" class="icon esri-icon-minimize" onclick="setIcon(this)"></div>
-                <div data-code="\ue610" class="icon esri-icon-checkbox-unchecked" onclick="setIcon(this)"></div>
-                <div data-code="\ue611" class="icon esri-icon-checkbox-checked" onclick="setIcon(this)"></div>
-                <div data-code="\ue612" class="icon esri-icon-radio-unchecked" onclick="setIcon(this)"></div>
-                <div data-code="\ue613" class="icon esri-icon-radio-checked" onclick="setIcon(this)"></div>
-                <div data-code="\ue614" class="icon esri-icon-up-arrow-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue615" class="icon esri-icon-down-arrow-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue616" class="icon esri-icon-left-arrow-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue617" class="icon esri-icon-right-arrow-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue618" class="icon esri-icon-zoom-out-fixed" onclick="setIcon(this)"></div>
-                <div data-code="\ue619" class="icon esri-icon-zoom-in-fixed" onclick="setIcon(this)"></div>
-                <div data-code="\ue61a" class="icon esri-icon-refresh" onclick="setIcon(this)"></div>
-                <div data-code="\ue61b" class="icon esri-icon-edit" onclick="setIcon(this)"></div>
-                <div data-code="\ue61c" class="icon esri-icon-authorize" onclick="setIcon(this)"></div>
-                <div data-code="\ue61d" class="icon esri-icon-map-pin" onclick="setIcon(this)"></div>
-                <div data-code="\ue61e" class="icon esri-icon-blank-map-pin" onclick="setIcon(this)"></div>
-                <div data-code="\ue61f" class="icon esri-icon-table" onclick="setIcon(this)"></div>
-                <div data-code="\ue620" class="icon esri-icon-plus" onclick="setIcon(this)"></div>
-                <div data-code="\ue621" class="icon esri-icon-minus" onclick="setIcon(this)"></div>
-                <div data-code="\ue622" class="icon esri-icon-beginning" onclick="setIcon(this)"></div>
-                <div data-code="\ue623" class="icon esri-icon-reverse" onclick="setIcon(this)"></div>
-                <div data-code="\ue624" class="icon esri-icon-pause" onclick="setIcon(this)"></div>
-                <div data-code="\ue625" class="icon esri-icon-play" onclick="setIcon(this)"></div>
-                <div data-code="\ue626" class="icon esri-icon-forward" onclick="setIcon(this)"></div>
-                <div data-code="\ue627" class="icon esri-icon-end" onclick="setIcon(this)"></div>
-                <div data-code="\ue628" class="icon esri-icon-erase" onclick="setIcon(this)"></div>
-                <div data-code="\ue629" class="icon esri-icon-up-down-arrows" onclick="setIcon(this)"></div>
-                <div data-code="\ue62a" class="icon esri-icon-left" onclick="setIcon(this)"></div>
-                <div data-code="\ue62b" class="icon esri-icon-right" onclick="setIcon(this)"></div>
-                <div data-code="\ue62c" class="icon esri-icon-announcement" onclick="setIcon(this)"></div>
-                <div data-code="\ue62d" class="icon esri-icon-notice-round" onclick="setIcon(this)"></div>
-                <div data-code="\ue62e" class="icon esri-icon-notice-triangle" onclick="setIcon(this)"></div>
-                <div data-code="\ue62f" class="icon esri-icon-home" onclick="setIcon(this)"></div>
-                <div data-code="\ue630" class="icon esri-icon-locate" onclick="setIcon(this)"></div>
-                <div data-code="\ue631" class="icon esri-icon-expand" onclick="setIcon(this)"></div>
-                <div data-code="\ue632" class="icon esri-icon-collapse" onclick="setIcon(this)"></div>
-                <div data-code="\ue633" class="icon esri-icon-layer-list" onclick="setIcon(this)"></div>
-                <div data-code="\ue634" class="icon esri-icon-basemap" onclick="setIcon(this)"></div>
-                <div data-code="\ue635" class="icon esri-icon-globe" onclick="setIcon(this)"></div>
-                <div data-code="\ue636" class="icon esri-icon-applications" onclick="setIcon(this)"></div>
-                <div data-code="\ue637" class="icon esri-icon-arrow-up-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue638" class="icon esri-icon-arrow-down-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue639" class="icon esri-icon-arrow-left-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue63a" class="icon esri-icon-arrow-right-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue63b" class="icon esri-icon-minus-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue63c" class="icon esri-icon-plus-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue63d" class="icon esri-icon-add-attachment" onclick="setIcon(this)"></div>
-                <div data-code="\ue63e" class="icon esri-icon-attachment" onclick="setIcon(this)"></div>
-                <div data-code="\ue63f" class="icon esri-icon-calendar" onclick="setIcon(this)"></div>
-                <div data-code="\ue640" class="icon esri-icon-close-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue641" class="icon esri-icon-browser" onclick="setIcon(this)"></div>
-                <div data-code="\ue642" class="icon esri-icon-collection" onclick="setIcon(this)"></div>
-                <div data-code="\ue643" class="icon esri-icon-comment" onclick="setIcon(this)"></div>
-                <div data-code="\ue644" class="icon esri-icon-configure-popup" onclick="setIcon(this)"></div>
-                <div data-code="\ue645" class="icon esri-icon-contact" onclick="setIcon(this)"></div>
-                <div data-code="\ue646" class="icon esri-icon-dashboard" onclick="setIcon(this)"></div>
-                <div data-code="\ue647" class="icon esri-icon-deny" onclick="setIcon(this)"></div>
-                <div data-code="\ue648" class="icon esri-icon-description" onclick="setIcon(this)"></div>
-                <div data-code="\ue649" class="icon esri-icon-directions" onclick="setIcon(this)"></div>
-                <div data-code="\ue64a" class="icon esri-icon-directions2" onclick="setIcon(this)"></div>
-                <div data-code="\ue64b" class="icon esri-icon-documentation" onclick="setIcon(this)"></div>
-                <div data-code="\ue64c" class="icon esri-icon-duplicate" onclick="setIcon(this)"></div>
-                <div data-code="\ue64d" class="icon esri-icon-review" onclick="setIcon(this)"></div>
-                <div data-code="\ue64e" class="icon esri-icon-environment-settings" onclick="setIcon(this)"></div>
-                <div data-code="\ue64f" class="icon esri-icon-error" onclick="setIcon(this)"></div>
-                <div data-code="\ue650" class="icon esri-icon-error2" onclick="setIcon(this)"></div>
-                <div data-code="\ue651" class="icon esri-icon-experimental" onclick="setIcon(this)"></div>
-                <div data-code="\ue652" class="icon esri-icon-feature-layer" onclick="setIcon(this)"></div>
-                <div data-code="\ue653" class="icon esri-icon-filter" onclick="setIcon(this)"></div>
-                <div data-code="\ue654" class="icon esri-icon-grant" onclick="setIcon(this)"></div>
-                <div data-code="\ue655" class="icon esri-icon-group" onclick="setIcon(this)"></div>
-                <div data-code="\ue656" class="icon esri-icon-key" onclick="setIcon(this)"></div>
-                <div data-code="\ue657" class="icon esri-icon-labels" onclick="setIcon(this)"></div>
-                <div data-code="\ue658" class="icon esri-icon-tag" onclick="setIcon(this)"></div>
-                <div data-code="\ue659" class="icon esri-icon-layers" onclick="setIcon(this)"></div>
-                <div data-code="\ue65a" class="icon esri-icon-left-arrow" onclick="setIcon(this)"></div>
-                <div data-code="\ue65b" class="icon esri-icon-right-arrow" onclick="setIcon(this)"></div>
-                <div data-code="\ue65c" class="icon esri-icon-link-external" onclick="setIcon(this)"></div>
-                <div data-code="\ue65d" class="icon esri-icon-link" onclick="setIcon(this)"></div>
-                <div data-code="\ue65e" class="icon esri-icon-loading-indicator" onclick="setIcon(this)"></div>
-                <div data-code="\ue65f" class="icon esri-icon-maps" onclick="setIcon(this)"></div>
-                <div data-code="\ue660" class="icon esri-icon-marketplace" onclick="setIcon(this)"></div>
-                <div data-code="\ue661" class="icon esri-icon-media" onclick="setIcon(this)"></div>
-                <div data-code="\ue662" class="icon esri-icon-media2" onclick="setIcon(this)"></div>
-                <div data-code="\ue663" class="icon esri-icon-menu" onclick="setIcon(this)"></div>
-                <div data-code="\ue664" class="icon esri-icon-mobile" onclick="setIcon(this)"></div>
-                <div data-code="\ue665" class="icon esri-icon-phone" onclick="setIcon(this)"></div>
-                <div data-code="\ue666" class="icon esri-icon-navigation" onclick="setIcon(this)"></div>
-                <div data-code="\ue667" class="icon esri-icon-pan" onclick="setIcon(this)"></div>
-                <div data-code="\ue668" class="icon esri-icon-printer" onclick="setIcon(this)"></div>
-                <div data-code="\ue669" class="icon esri-icon-pie-chart" onclick="setIcon(this)"></div>
-                <div data-code="\ue66a" class="icon esri-icon-chart" onclick="setIcon(this)"></div>
-                <div data-code="\ue66b" class="icon esri-icon-line-chart" onclick="setIcon(this)"></div>
-                <div data-code="\ue66c" class="icon esri-icon-question" onclick="setIcon(this)"></div>
-                <div data-code="\ue66d" class="icon esri-icon-resend-invitation" onclick="setIcon(this)"></div>
-                <div data-code="\ue66e" class="icon esri-icon-rotate" onclick="setIcon(this)"></div>
-                <div data-code="\ue66f" class="icon esri-icon-save" onclick="setIcon(this)"></div>
-                <div data-code="\ue670" class="icon esri-icon-settings" onclick="setIcon(this)"></div>
-                <div data-code="\ue671" class="icon esri-icon-settings2" onclick="setIcon(this)"></div>
-                <div data-code="\ue672" class="icon esri-icon-share" onclick="setIcon(this)"></div>
-                <div data-code="\ue673" class="icon esri-icon-sign-out" onclick="setIcon(this)"></div>
-                <div data-code="\ue674" class="icon esri-icon-support" onclick="setIcon(this)"></div>
-                <div data-code="\ue675" class="icon esri-icon-user" onclick="setIcon(this)"></div>
-                <div data-code="\ue676" class="icon esri-icon-time-clock" onclick="setIcon(this)"></div>
-                <div data-code="\ue677" class="icon esri-icon-trash" onclick="setIcon(this)"></div>
-                <div data-code="\ue678" class="icon esri-icon-upload" onclick="setIcon(this)"></div>
-                <div data-code="\ue679" class="icon esri-icon-download" onclick="setIcon(this)"></div>
-                <div data-code="\ue67a" class="icon esri-icon-zoom-in-magnifying-glass" onclick="setIcon(this)"></div>
-                <div data-code="\ue67b" class="icon esri-icon-search" onclick="setIcon(this)"></div>
-                <div data-code="\ue67c" class="icon esri-icon-zoom-out-magnifying-glass" onclick="setIcon(this)"></div>
-                <div data-code="\ue67d" class="icon esri-icon-locked" onclick="setIcon(this)"></div>
-                <div data-code="\ue67e" class="icon esri-icon-unlocked" onclick="setIcon(this)"></div>
-                <div data-code="\ue67f" class="icon esri-icon-favorites" onclick="setIcon(this)"></div>
-                <div data-code="\ue680" class="icon esri-icon-compass" onclick="setIcon(this)"></div>
-                <div data-code="\ue681" class="icon esri-icon-down" onclick="setIcon(this)"></div>
-                <div data-code="\ue682" class="icon esri-icon-up" onclick="setIcon(this)"></div>
-                <div data-code="\ue683" class="icon esri-icon-chat" onclick="setIcon(this)"></div>
-                <div data-code="\ue684" class="icon esri-icon-dock-bottom" onclick="setIcon(this)"></div>
-                <div data-code="\ue685" class="icon esri-icon-dock-left" onclick="setIcon(this)"></div>
-                <div data-code="\ue686" class="icon esri-icon-dock-right" onclick="setIcon(this)"></div>
-                <div data-code="\ue687" class="icon esri-icon-organization" onclick="setIcon(this)"></div>
-                <div data-code="\ue688" class="icon esri-icon-north-navigation" onclick="setIcon(this)"></div>
-                <div data-code="\ue689" class="icon esri-icon-locate-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue68a" class="icon esri-icon-dial" onclick="setIcon(this)"></div>
-                <div data-code="\ue68b" class="icon esri-icon-polygon" onclick="setIcon(this)"></div>
-                <div data-code="\ue68c" class="icon esri-icon-polyline" onclick="setIcon(this)"></div>
-                <div data-code="\ue68d" class="icon esri-icon-visible" onclick="setIcon(this)"></div>
-                <div data-code="\ue68e" class="icon esri-icon-non-visible" onclick="setIcon(this)"></div>
-                <div data-code="\ue68f" class="icon esri-icon-link-vertical" onclick="setIcon(this)"></div>
-                <div data-code="\ue690" class="icon esri-icon-unlocked-link-vertical" onclick="setIcon(this)"></div>
-                <div data-code="\ue691" class="icon esri-icon-link-horizontal" onclick="setIcon(this)"></div>
-                <div data-code="\ue692" class="icon esri-icon-unlocked-link-horizontal" onclick="setIcon(this)"></div>
-                <div data-code="\ue693" class="icon esri-icon-swap" onclick="setIcon(this)"></div>
-                <div data-code="\ue694" class="icon esri-icon-cta-link-external" onclick="setIcon(this)"></div>
-                <div data-code="\ue695" class="icon esri-icon-reply" onclick="setIcon(this)"></div>
-                <div data-code="\ue696" class="icon esri-icon-public" onclick="setIcon(this)"></div>
-                <div data-code="\ue697" class="icon esri-icon-share2" onclick="setIcon(this)"></div>
-                <div data-code="\ue698" class="icon esri-icon-launch-link-external" onclick="setIcon(this)"></div>
-                <div data-code="\ue699" class="icon esri-icon-rotate-back" onclick="setIcon(this)"></div>
-                <div data-code="\ue69a" class="icon esri-icon-pan2" onclick="setIcon(this)"></div>
-                <div data-code="\ue69b" class="icon esri-icon-tracking" onclick="setIcon(this)"></div>
-                <div data-code="\ue69c" class="icon esri-icon-expand2" onclick="setIcon(this)"></div>
-                <div data-code="\ue69d" class="icon esri-icon-arrow-down" onclick="setIcon(this)"></div>
-                <div data-code="\ue69e" class="icon esri-icon-arrow-up" onclick="setIcon(this)"></div>
-                <div data-code="\ue69f" class="icon esri-icon-hollow-eye" onclick="setIcon(this)"></div>
-                <div data-code="\ue6a0" class="icon esri-icon-play-circled" onclick="setIcon(this)"></div>
-                <div data-code="\ue6a1" class="icon esri-icon-volume-off" onclick="setIcon(this)"></div>
-                <div data-code="\ue6a2" class="icon esri-icon-volume-on" onclick="setIcon(this)"></div>
-                <div data-code="\ue900" class="icon esri-icon-bookmark" onclick="setIcon(this)"></div>
-                <div data-code="\ue901" class="icon esri-icon-lightbulb" onclick="setIcon(this)"></div>
-                <div data-code="\ue902" class="icon esri-icon-sketch-rectangle" onclick="setIcon(this)"></div>
-                <div data-code="\ue903" class="icon esri-icon-north-navigation-filled" onclick="setIcon(this)"></div>
-                <div data-code="\ue904" class="icon esri-icon-default-action" onclick="setIcon(this)"></div>
-                <div data-code="\ue905" class="icon esri-icon-undo" onclick="setIcon(this)"></div>
-                <div data-code="\ue906" class="icon esri-icon-redo" onclick="setIcon(this)"></div>
-                <div data-code="\ue907" class="icon esri-icon-cursor" onclick="setIcon(this)"></div>
-                <div data-code="\ue908" class="icon esri-icon-cursor-filled" onclick="setIcon(this)"></div>
-                <div data-code="\ue909" class="icon esri-icon-measure-line" onclick="setIcon(this)"></div>
-                <div data-code="\ue90a" class="icon esri-icon-measure" onclick="setIcon(this)"></div>
-                <div data-code="\ue90b" class="icon esri-icon-measure-area" onclick="setIcon(this)"></div>
-                <div data-code="\ue90c" class="icon esri-icon-legend" onclick="setIcon(this)"></div>
-                <div data-code="\ue90d" class="icon esri-icon-sliders" onclick="setIcon(this)"></div>
-                <div data-code="\ue90e" class="icon esri-icon-sliders-horizontal" onclick="setIcon(this)"></div>
-                <div data-code="\ue90f" class="icon esri-icon-cursor-marquee" onclick="setIcon(this)"></div>
-                <div data-code="\ue910" class="icon esri-icon-lasso" onclick="setIcon(this)"></div>
-                <div data-code="\ue911" class="icon esri-icon-elevation-profile" onclick="setIcon(this)"></div>
-                <div data-code="\ue912" class="icon esri-icon-line-of-sight" onclick="setIcon(this)"></div>
-                <div data-code="\ue913" class="icon esri-icon-slice" onclick="setIcon(this)"></div>
-                <div data-code="\ue914" class="icon esri-icon-zoom-to-object" onclick="setIcon(this)"></div>
-                <div data-code="\ue915" class="icon esri-icon-urban-model" onclick="setIcon(this)"></div>
-                <div data-code="\ue916" class="icon esri-icon-measure-building-height-shadow" onclick="setIcon(this)"></div>
-                <div data-code="\ue917" class="icon esri-icon-partly-cloudy" onclick="setIcon(this)"></div>
-            </div>
+        <div id="pointLayerSimpleRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="pointLayerSimpleSymbolSetting"></div>
         </div>
-        <hr>
+        <div id="pointLayerUniqueValueRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="pointLayerUniqueValueSymbolSetting"></div>
+            <button class="add-symbol-button" type="button" onclick="addSymbol('pointLayer', 'uniqueValue')">Add symbol</button>
+        </div>
+        <div id="pointLayerClassBreaksRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="pointLayerClassBreaksSymbolSetting"></div>
+            <button class="add-symbol-button" type="button" onclick="addSymbol('pointLayer', 'classBreaks')">Add symbol</button>
+        </div>
+<!--        <div id="pointLayerHeatmapRendererSetting" class="renderer-setting hidden">-->
+<!--            <div class="symbol-setting-container" id="pointLayerHeatmapSymbolSetting"></div>-->
+<!--            <button class="add-symbol-button" type="button" onclick="addHeatmapColorStop('pointLayerHeatmapSymbolSetting')">Add symbol</button>-->
+<!--        </div>-->
         <div class="modal-footer">
             <button onclick="closeModal('pointLayerSymbologyModal')">Cancel</button>
             <button onclick="saveSymbology('pointLayer')">Confirm</button>
@@ -258,11 +289,11 @@
         </div>
         <div id="polylineLayerUniqueValueRendererSetting" class="renderer-setting hidden">
             <div class="symbol-setting-container" id="polylineLayerUniqueValueSymbolSetting"></div>
-            <button class="add-symbol-button" type="button" onclick="addUniqueValueSymbol('polylineLayerUniqueValueSymbolSetting')">Add symbol</button>
+            <button class="add-symbol-button" type="button" onclick="addSymbol('polylineLayer', 'uniqueValue')">Add symbol</button>
         </div>
         <div id="polylineLayerClassBreaksRendererSetting" class="renderer-setting hidden">
             <div class="symbol-setting-container" id="polylineLayerClassBreaksSymbolSetting"></div>
-            <button class="add-symbol-button" type="button" onclick="addClassBreaksSymbol('polylineLayerClassBreaksSymbolSetting')">Add symbol</button>
+            <button class="add-symbol-button" type="button" onclick="addSymbol('polylineLayer', 'classBreaks')">Add symbol</button>
         </div>
         <div class="modal-footer">
             <button onclick="closeModal('polylineLayerSymbologyModal')">Cancel</button>
@@ -286,11 +317,11 @@
         </div>
         <div id="polygonLayerUniqueValueRendererSetting" class="renderer-setting hidden">
             <div class="symbol-setting-container" id="polygonLayerUniqueValueSymbolSetting"></div>
-            <button class="add-symbol-button" type="button" onclick="addUniqueValueSymbol('polygonLayerUniqueValueSymbolSetting')">Add symbol</button>
+            <button class="add-symbol-button" type="button" onclick="addSymbol('polygonLayer', 'uniqueValue')">Add symbol</button>
         </div>
         <div id="polygonLayerClassBreaksRendererSetting" class="renderer-setting hidden">
             <div class="symbol-setting-container" id="polygonLayerClassBreaksSymbolSetting"></div>
-            <button class="add-symbol-button" type="button" onclick="addClassBreaksSymbol('polygonLayerClassBreaksSymbolSetting')">Add symbol</button>
+            <button class="add-symbol-button" type="button" onclick="addSymbol('polygonLayer', 'classBreaks')">Add symbol</button>
         </div>
         <div class="modal-footer">
             <button onclick="closeModal('polygonLayerSymbologyModal')">Cancel</button>

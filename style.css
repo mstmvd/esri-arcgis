@@ -273,3 +273,7 @@ body,
 .hidden {
     display: none;
 }
+
+.cur-pointer {
+    cursor: pointer;
+}
