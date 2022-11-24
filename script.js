@@ -860,7 +860,8 @@ function createRendererSymbolSetting(layerName, rendererType, index) {
 
 function addSymbol(layerName, rendererType) {
     const symbolSetting = document.getElementById(`${layerName}${rendererType.ucFirst()}SymbolSetting`);
-    const index = symbolSetting.children.length;
+    const lastSymbolSetting = symbolSetting.lastChild;
+    const index = lastSymbolSetting ? Number(lastSymbolSetting.id.split('_')[1]) + 1 : 0;
     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(layerName, rendererType, index));
 }
 
