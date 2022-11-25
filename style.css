@@ -133,7 +133,7 @@ body,
 
 .modal-content .symbol-setting {
     border-bottom: 1px dashed #ababab;
-    padding-bottom: 8px;
+    /*padding-bottom: 8px;*/
     margin: 8px 0;
     position: relative;
 }

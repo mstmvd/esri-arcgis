@@ -80,17 +80,15 @@ const layersInfo = {
                 ]
             },
             heatmap: {
-                field: "ObjectID",
+                // field: "ObjectID",
                 colorStops: [
                     { ratio: 0, color: "rgba(255, 255, 255, 0)" },
-                    { ratio: 0.2, color: "rgba(255, 255, 255, 1)" },
                     { ratio: 0.5, color: "rgba(255, 140, 0, 1)" },
-                    { ratio: 0.8, color: "rgba(255, 140, 0, 1)" },
                     { ratio: 1, color: "rgba(255, 0, 0, 1)" }
                 ],
+                maxDensity: 0.005,
                 minDensity: 0,
-                maxDensity: 3,
-                radius: 10
+                radius: 15
             }
         }
     },
@@ -332,7 +330,7 @@ require([
                 },
             });
         }),
-        renderer: layersInfo.pointLayer.renderers.simple,
+        renderer: layersInfo.pointLayer.renderers.heatmap,
         fields: [
             {
                 name: "ObjectID",
@@ -461,7 +459,6 @@ function getLayerSymbol(layer) {
     let symbol;
     switch (layer.renderer.type) {
         case 'simple':
-        case 'heatmap':
             symbol = layer.renderer.symbol;
             break
         case 'unique-value':
@@ -469,6 +466,9 @@ function getLayerSymbol(layer) {
             break;
         case 'class-breaks':
             symbol = layer.renderer.classBreakInfos[0].symbol;
+            break;
+        case 'heatmap':
+            symbol = layersInfo.pointLayer.renderers.simple.symbol;
             break;
     }
     return symbol?.clone();
@@ -557,6 +557,21 @@ function saveSymbology(layerName) {
                                         family: "CalciteWebCoreIcons",
                                     },
                                 }
+                            });
+                        }
+                        break;
+                    case 'heatmap':
+                        layersInfo.pointLayer.renderers.heatmap.radius = document.getElementById(activeTocLayer + rendererType + 'Radius').value;
+                        layersInfo.pointLayer.renderers.heatmap.minDensity = document.getElementById(activeTocLayer + rendererType + 'MinDensity').value;
+                        layersInfo.pointLayer.renderers.heatmap.maxDensity = document.getElementById(activeTocLayer + rendererType + 'MaxDensity').value;
+                        layersInfo.pointLayer.renderers.heatmap.colorStops = [];
+                        for (const colorStop of document.getElementById('pointLayerHeatmapColorStops').children) {
+                            const i = colorStop.id.split('_')[1];
+                            var opacity = document.getElementById(activeTocLayer + rendererType + 'ColorStopColorOpacity_' + i).value;
+                            var color = document.getElementById(activeTocLayer + rendererType + 'ColorStopColor_' + i).value;
+                            layersInfo.pointLayer.renderers.heatmap.colorStops[index++] = new HeatmapColorStop({
+                                ratio: document.getElementById(activeTocLayer + rendererType + 'ColorStopRatio_' + i).value,
+                                color: 'rgba(' + parseInt(color.slice(-6, -4), 16) + ',' + parseInt(color.slice(-4, -2), 16) + ',' + parseInt(color.slice(-2), 16) + ',' + opacity + ')',
                             });
                         }
                         break;
@@ -720,6 +735,18 @@ function initPointLayerModal() {
                     document.getElementById(activeTocLayer + rendererType + 'Icon_' + i).nextElementSibling.classList = document.querySelector('[data-code$=' + renderer.classBreakInfos[i].symbol.text.charCodeAt(0).toString(16) + ']')?.classList;
                 }
                 break;
+            case "heatmap":
+                const colorStops = document.getElementById('pointLayerHeatmapColorStops');
+                colorStops.innerHTML = '';
+                for (let i = 0; i < renderer.colorStops.length; i++) {
+                    colorStops.insertAdjacentHTML('beforeend', createHeatmapColorStopSetting(i));
+                    document.getElementById(activeTocLayer + rendererType + 'ColorStopRatio_' + i).value = renderer.colorStops[i].ratio;
+                    document.getElementById(activeTocLayer + rendererType + 'ColorStopColor_' + i).value = renderer.colorStops[i].color.toHex();
+                    document.getElementById(activeTocLayer + rendererType + 'ColorStopColorOpacity_' + i).value = renderer.colorStops[i].color.toRgba()[3];
+                    document.getElementById(activeTocLayer + rendererType + 'Radius').value = renderer.radius;
+                    document.getElementById(activeTocLayer + rendererType + 'MinDensity').value = renderer.minDensity;
+                    document.getElementById(activeTocLayer + rendererType + 'MaxDensity').value = renderer.maxDensity;
+                }
         }
     }
     openTab(layers.pointLayer.renderer.type.toPascalCase().lcFirst());
@@ -863,6 +890,25 @@ function addSymbol(layerName, rendererType) {
     const lastSymbolSetting = symbolSetting.lastChild;
     const index = lastSymbolSetting ? Number(lastSymbolSetting.id.split('_')[1]) + 1 : 0;
     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(layerName, rendererType, index));
+}
+
+function createHeatmapColorStopSetting(index) {
+    const deleteSymbolSettingButton = createDeleteSymbolSettingButton();
+    return `
+    <div class="symbol-setting" id="pointLayerHeatmapColorStop_${index}">
+        <div class="form-field"><label>Ratio: <input type="text" id="pointLayerHeatmapColorStopRatio_${index}"></label></div>
+        <div class="form-field"><label>Color: <input type="color" id="pointLayerHeatmapColorStopColor_${index}"></label></div>
+        <div class="form-field"><label>Opacity: <input type="range" min="0" max="1" step="0.1" id="pointLayerHeatmapColorStopColorOpacity_${index}"></label></div>
+        ${deleteSymbolSettingButton}
+    <div>
+    `;
+}
+
+function addHeatmapColorStop() {
+    const colorStops = document.getElementById(`pointLayerHeatmapColorStops`);
+    const lastColorStop = colorStops.lastChild;
+    const index = lastColorStop ? Number(lastColorStop.id.split('_')[1]) + 1 : 0;
+    colorStops.insertAdjacentHTML('beforeend', createHeatmapColorStopSetting(index));
 }
 
 function createLayerFieldsSelect(layer, id) {

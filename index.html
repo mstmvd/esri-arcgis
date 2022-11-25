@@ -250,7 +250,7 @@
             <button class="tab-button" id="pointLayerButtonOpenTabSimple" onclick="openTab('simple')">Simple</button>
             <button class="tab-button" id="pointLayerButtonOpenTabUniqueValue" onclick="openTab('uniqueValue')">Unique Value</button>
             <button class="tab-button" id="pointLayerButtonOpenTabClassBreaks" onclick="openTab('classBreaks')">Class Breaks</button>
-<!--            <button class="tab-button" id="pointLayerButtonOpenTabHeatmap" onclick="openTab('heatmap')">Heatmap</button>-->
+            <button class="tab-button" id="pointLayerButtonOpenTabHeatmap" onclick="openTab('heatmap')">Heatmap</button>
         </div>
         <div id="pointLayerSimpleRendererSetting" class="renderer-setting hidden">
             <div class="symbol-setting-container" id="pointLayerSimpleSymbolSetting"></div>
@@ -263,10 +263,16 @@
             <div class="symbol-setting-container" id="pointLayerClassBreaksSymbolSetting"></div>
             <button class="add-symbol-button" type="button" onclick="addSymbol('pointLayer', 'classBreaks')">Add symbol</button>
         </div>
-<!--        <div id="pointLayerHeatmapRendererSetting" class="renderer-setting hidden">-->
-<!--            <div class="symbol-setting-container" id="pointLayerHeatmapSymbolSetting"></div>-->
-<!--            <button class="add-symbol-button" type="button" onclick="addHeatmapColorStop('pointLayerHeatmapSymbolSetting')">Add symbol</button>-->
-<!--        </div>-->
+        <div id="pointLayerHeatmapRendererSetting" class="renderer-setting hidden">
+            <div class="symbol-setting-container" id="pointLayerHeatmapSymbolSetting">
+                <div class="form-field"><label>Radius: <input type="text" id="pointLayerHeatmapRadius"></label></div>
+                <div class="form-field"><label>Max density: <input type="text" id="pointLayerHeatmapMaxDensity"></label></div>
+                <div class="form-field"><label>Min density: <input type="text" id="pointLayerHeatmapMinDensity"></label></div>
+                <hr/>
+                <div id="pointLayerHeatmapColorStops"></div>
+            </div>
+            <button class="add-symbol-button" type="button" onclick="addHeatmapColorStop()">Add color stop</button>
+        </div>
         <div class="modal-footer">
             <button onclick="closeModal('pointLayerSymbologyModal')">Cancel</button>
             <button onclick="saveSymbology('pointLayer')">Confirm</button>
