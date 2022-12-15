@@ -17,17 +17,17 @@
         <span class="caret" onclick="toggleTOC(this)">Layers</span>
         <ul class="nested" id="layers">
             <li id="pointLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'pointLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
-                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('pointLayer')">
+                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer(event, 'pointLayer')">
                 <div class="symbology" id="pointLayerSymbologyIcon"></div>
                 <div class="layer-title">Point Layer</div>
             </li>
             <li id="polylineLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'polylineLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
-                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('polylineLayer')">
+                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer(event, 'polylineLayer')">
                 <div class="symbology" id="polylineLayerSymbologyIcon"></div>
                 <div class="layer-title">Polyline Layer</div>
             </li>
             <li id="polygonLayer" class="layer-name" draggable="true" oncontextmenu="showLayerOptionsMenu(event, 'polygonLayer')" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
-                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer('polygonLayer')">
+                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer(event, 'polygonLayer')">
                 <div class="symbology" id="polygonLayerSymbologyIcon"></div>
                 <div class="layer-title">Polygon Layer</div>
             </li>
@@ -378,6 +378,7 @@
 </div>
 <div id="layerOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu()">
     <div id="layerOptionMenu" class="layer-option-menu">
+        <button onclick="showLayer(activeTocLayer)">Zoom to layer</button>
         <button onclick="openLayerEditModal()">Edit</button>
         <button onclick="openLayerOptionModal()">Set label</button>
     </div>

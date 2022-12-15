@@ -180,12 +180,6 @@ const layersInfo = {
     },
 }
 
-const layerButtons = [
-    {text: 'Point Layer', layer: 'pointLayer'},
-    {text: 'Polyline Layer', layer: 'polylineLayer'},
-    {text: 'Polygon Layer', layer: 'polygonLayer'},
-];
-
 //Sample data
 const pointsData = [
     {
@@ -288,16 +282,6 @@ require([
             creationMode: "update"
         });
         view.ui.add([{component: sketch, index: 0, position: "top-left"}]);
-    });
-
-    layerButtons.forEach(button => {
-        const btn = document.createElement('button');
-        btn.classList.add('layer-button');
-        btn.onclick = () => {
-            showLayer(button.layer)
-        };
-        btn.innerHTML = button.text;
-        view.ui.add(btn, 'top-right');
     });
 
     view.ui.add(document.getElementById('toc'), 'bottom-left');
@@ -475,9 +459,6 @@ function getLayerSymbol(layer) {
 }
 
 function showLayer(layerName) {
-    Object.keys(layers).forEach(layer => {
-        layers[layer].visible = layer === layerName;
-    });
     layers[layerName]
         .when((layer) => {
             return layer.queryExtent();
@@ -487,8 +468,8 @@ function showLayer(layerName) {
         });
 }
 
-function toggleLayer(layerName) {
-    layers[layerName].visible = !layers[layerName].visible;
+function toggleLayer(event, layerName) {
+    layers[layerName].visible = event.target.checked;
 }
 
 function toggleTOC(element) {
@@ -977,7 +958,7 @@ function showLayerOptionsMenu(event, layer) {
     const menuContainer = document.getElementById('layerOptionMenuContainer');
     menuContainer.style.display = 'block';
     const menu = document.getElementById('layerOptionMenu');
-    menu.style.top = event.clientY + 'px';
+    menu.style.top = event.clientY - menu.offsetHeight + 'px';
     menu.style.left = event.clientX + 'px';
 }
 
