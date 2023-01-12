@@ -277,3 +277,49 @@ body,
 .cur-pointer {
     cursor: pointer;
 }
+
+.esri-time-slider__beginning, .esri-time-slider__end{
+    width: 35px;
+}
+
+.esri-time-slider__beginning-button, .esri-time-slider__end-button {
+    border: none;
+    height: 100%;
+    width: 100%;
+}
+
+.esri-icon-beginning, .esri-icon-end {
+    font-size: 24px;
+}
+
+.esri-time-slider__row {
+    justify-content: space-between;
+    padding: 0 8px 8px;
+}
+
+.esri-time-slider__row details {
+    margin-left: 16px;
+    min-width: 200px;
+    cursor: pointer;
+    background-color: #eeeeee;
+    padding: 8px;
+    height: max-content;
+}
+
+#timeSliderLayers {
+    padding-left: 16px;
+    margin-bottom: 0;
+}
+
+#timeSliderLayers li {
+    display: flex;
+}
+
+#timeSliderLayers li label {
+    min-width: 130px;
+}
+
+#timeSliderLayers li button {
+    border: none;
+    background-color: transparent;
+}

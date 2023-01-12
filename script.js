@@ -82,9 +82,9 @@ const layersInfo = {
             heatmap: {
                 // field: "ObjectID",
                 colorStops: [
-                    { ratio: 0, color: "rgba(255, 255, 255, 0)" },
-                    { ratio: 0.5, color: "rgba(255, 140, 0, 1)" },
-                    { ratio: 1, color: "rgba(255, 0, 0, 1)" }
+                    {ratio: 0, color: "rgba(255, 255, 255, 0)"},
+                    {ratio: 0.5, color: "rgba(255, 140, 0, 1)"},
+                    {ratio: 1, color: "rgba(255, 0, 0, 1)"}
                 ],
                 maxDensity: 0.005,
                 minDensity: 0,
@@ -186,52 +186,57 @@ const pointsData = [
         id: 1,
         longitude: -3.6804679,
         latitude: 40.4103000,
-        name: 'point1'
+        name: 'point1',
+        time: new Date(2001, 1, 1).getTime()
     },
     {
         id: 2,
         longitude: -3.6774979,
         latitude: 40.4099999,
-        name: 'point2'
+        name: 'point2',
+        time: new Date(2002, 1, 1).getTime()
     },
     {
         id: 3,
         longitude: -3.6784979,
         latitude: 40.4108599,
-        name: 'point3'
+        name: 'point3',
+        time: new Date(2003, 1, 1).getTime()
     }
 ];
 const polylineData = [
     {
         id: 1,
         path: [[-3.6805879, 40.4111599], [-3.6754979, 40.4084599]],
-        name: 'line1'
+        name: 'line1',
+        time: new Date(2004, 1, 1).getTime()
     },
     {
         id: 2,
         path: [[-3.6754979, 40.4084599], [-3.6774979, 40.4114599]],
-        name: 'line2'
+        name: 'line2',
+        time: new Date(2005, 1, 1).getTime()
     },
 ];
 const polygonData = [
     {
         id: 1,
         ring: [[-3.6814679, 40.4103599], [-3.6754979, 40.4094599], [-3.6784979, 40.4114599], [-3.6814679, 40.4103599]],
-        name: 'shape1'
+        name: 'shape1',
+        time: new Date(2006, 1, 1).getTime(),
     },
     {
         id: 2,
         ring: [[-3.6834679, 40.4113599], [-3.6814979, 40.4104599], [-3.6804979, 40.4124599], [-3.6834679, 40.4113599]],
-        name: 'shape2'
+        name: 'shape2',
+        time: new Date(2007, 1, 1).getTime(),
     },
 ];
-let pointIcon = "\ue61d";
 let map;
 let sketchLayer;
 
 const labelPlacement = {
     pointLayer: ['above-center', 'above-left', 'above-right', 'below-center', 'below-left', 'below-right', 'center-center', 'center-left', 'center-right'],
-    // polyline: ['above-after', 'above-along', 'above-before', 'above-start', 'above-end', 'below-after', 'below-along', 'below-before', 'below-start', 'below-end', 'center-after', 'center-along', 'center-before', 'center-start', 'center-end'],
     polylineLayer: ['center-along'],
     polygonLayer: ['always-horizontal'],
 }
@@ -240,6 +245,15 @@ let activeTocLayer;
 let activeModalTab;
 let globalSymbolUtils;
 let activeIconInput;
+let timeSlider;
+let timeSliderLayers = [];
+let timeSliderCheckedLayers = [];
+const timeSliderPlayRates = [
+    {title: 'Slow', playRate: 1000},
+    {title: 'Normal', playRate: 500},
+    {title: 'Fast', playRate: 100},
+]
+let timeSliderPlayRateIndex = 1;
 
 require([
     "esri/Map",
@@ -257,8 +271,9 @@ require([
     "esri/renderers/HeatmapRenderer",
     "esri/renderers/support/UniqueValueInfo",
     "esri/renderers/support/ClassBreakInfo",
-    "esri/renderers/support/HeatmapColorStop"
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop) {
+    "esri/renderers/support/HeatmapColorStop",
+    "esri/widgets/TimeSlider"
+], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider) {
     window.UniqueValueInfo = UniqueValueInfo;
     window.ClassBreakInfo = ClassBreakInfo;
     window.HeatmapColorStop = HeatmapColorStop;
@@ -286,6 +301,39 @@ require([
 
     view.ui.add(document.getElementById('toc'), 'bottom-left');
 
+    timeSlider = new TimeSlider({
+        container: "timeSliderDiv",
+        mode: "time-window",
+        layout: "compact",
+        timeExtent: {
+            start: new Date(2000, 1, 1),
+            end: new Date(2001, 1, 1)
+        },
+        stops: {
+            interval: {
+                unit: "years",
+                value: 1
+            }
+        },
+        playRate: timeSliderPlayRates[timeSliderPlayRateIndex].playRate,
+    });
+
+    timeSlider.when(function () {
+        document.querySelector('#timeSliderDiv > div:nth-child(3) > .esri-time-slider__previous').insertAdjacentHTML("beforebegin", `<div class="esri-time-slider__beginning"><button onclick="timeSliderToBeginning()" aria-disabled="false" aria-label="Beginning" class="esri-widget--button esri-time-slider__beginning-button" title="Beginning" type="button"><div class="esri-icon-beginning"></div></button></div>`);
+        document.querySelector('#timeSliderDiv > div:nth-child(3) > .esri-time-slider__next').insertAdjacentHTML("afterend", `<div class="esri-time-slider__end"><button onclick="timeSliderToEnd()" aria-disabled="false" aria-label="End" class="esri-widget--button esri-time-slider__end-button" title="End" type="button"><div class="esri-icon-end"></div></button></div>`);
+        const timeSliderTools = document.createElement('div');
+        timeSliderTools.classList.add('esri-time-slider__row');
+        timeSliderTools.insertAdjacentHTML("beforeend", `<div><div style="margin-bottom: 8px;"><label>Play rate: <input onchange="timeSliderPlayRate(this)" oninput="timeSliderPlayRate(this)" type="range" min="100" max="1000" step="100" value="${timeSliderPlayRates[timeSliderPlayRateIndex].playRate}"> <span id="timeSliderPlayRate">${timeSliderPlayRates[timeSliderPlayRateIndex].playRate}</span><span> ms</span></label></div><div><label><input onchange="timeSliderToggleMode()" type="checkbox"> Cumulative from start</label></div></div>`);
+        timeSliderTools.insertAdjacentHTML("beforeend", `<details><summary>Layers</summary><ul id="timeSliderLayers"></ul></detailsb>`);
+        timeSliderTools.insertAdjacentHTML("beforeend", ``);
+        const ts = document.getElementById('timeSliderDiv');
+        ts.append(timeSliderTools);
+    }, function (error) {
+        alert("error");
+    });
+
+    view.ui.add(timeSlider, "bottom-trailing");
+
     layersInfo.pointLayer.renderers.simple = new SimpleRenderer(layersInfo.pointLayer.renderers.simple);
     layersInfo.pointLayer.renderers.uniqueValue = new UniqueValueRenderer(layersInfo.pointLayer.renderers.uniqueValue);
     layersInfo.pointLayer.renderers.classBreaks = new ClassBreaksRenderer(layersInfo.pointLayer.renderers.classBreaks);
@@ -306,6 +354,7 @@ require([
                 attributes: {
                     ObjectId: place.id,
                     name: place.name,
+                    time: place.time,
                 },
                 geometry: {
                     type: "point",
@@ -324,6 +373,10 @@ require([
                 name: "name",
                 alias: "name",
                 type: "string"
+            }, {
+                name: "time",
+                alias: "time",
+                type: "date"
             },
         ],
         labelingInfo: [{  // autocasts as new LabelClass()
@@ -341,6 +394,10 @@ require([
             },
         }],
         objectIdField: "ObjectID",
+        fullTimeExtent: { // entire extent of the timeSlider
+            start: new Date(2000, 1, 1).getTime(),
+            end: new Date(2004, 1, 1).getTime()
+        },
     });
     layers.polylineLayer = new FeatureLayer({
         source: polylineData.map(function (line) {
@@ -348,6 +405,7 @@ require([
                 attributes: {
                     ObjectId: line.id,
                     name: line.name,
+                    time: line.time,
                 },
                 geometry: {
                     type: "polyline",
@@ -365,6 +423,10 @@ require([
                 name: "name",
                 alias: "name",
                 type: "string"
+            }, {
+                name: "time",
+                alias: "time",
+                type: "date"
             },
         ],
         labelingInfo: [{  // autocasts as new LabelClass()
@@ -382,6 +444,10 @@ require([
             },
         }],
         objectIdField: "ObjectID",
+        fullTimeExtent: { // entire extent of the timeSlider
+            start: new Date(2003, 1, 1).getTime(),
+            end: new Date(2006, 1, 1).getTime()
+        },
     });
 
     layers.polygonLayer = new FeatureLayer({
@@ -390,6 +456,7 @@ require([
                 attributes: {
                     ObjectId: polygon.id,
                     name: polygon.name,
+                    time: polygon.time,
                 },
                 geometry: {
                     type: "polygon",
@@ -407,6 +474,10 @@ require([
                 name: "name",
                 alias: "name",
                 type: "string"
+            }, {
+                name: "time",
+                alias: "time",
+                type: "date"
             },
         ],
         labelingInfo: [{  // autocasts as new LabelClass()
@@ -424,12 +495,17 @@ require([
             },
         }],
         objectIdField: "ObjectID",
+        fullTimeExtent: { // entire extent of the timeSlider
+            start: new Date(2005, 1, 1).getTime(),
+            end: new Date(2008, 1, 1).getTime()
+        },
     });
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 
     Object.keys(layers).forEach((layerName) => {
-        symbolUtils.renderPreviewHTML(getLayerSymbol(layers[layerName]), {
+        const layer = layers[layerName];
+        symbolUtils.renderPreviewHTML(getLayerSymbol(layer), {
             node: document.getElementById(layerName + 'SymbologyIcon'),
             size: {
                 width: 24,
@@ -437,7 +513,56 @@ require([
             }
         });
     });
+    timeSlider.watch("timeExtent", (value) => {
+        applyTimeExtentToLayers();
+    });
 });
+
+function timeSliderToBeginning() {
+    const start = new Date(timeSlider.fullTimeExtent.start.getTime());
+    timeSlider.timeExtent = {
+        start: start,
+        end: new Date(start.getTime()).setFullYear(start.getFullYear() + 1)
+    };
+}
+function timeSliderToEnd() {
+    const end = new Date(timeSlider.fullTimeExtent.end.getTime());
+    timeSlider.timeExtent = {
+        start: new Date(end.getTime()).setFullYear(end.getFullYear() - 1),
+        end: end
+    };
+}
+
+function timeSliderToggleMode() {
+    const timeExtent = {
+        start: timeSlider.timeExtent.start,
+        end: timeSlider.timeExtent.end
+    };
+    timeSlider.mode = timeSlider.mode === 'time-window' ? 'cumulative-from-start' : 'time-window';
+    switch (timeSlider.mode) {
+        case 'time-window':
+            const start = new Date(timeExtent.end);
+            start.setFullYear(timeExtent.end.getFullYear() - 1);
+            timeSlider.timeExtent = {
+                start: Math.max(start.getTime(), timeSlider.fullTimeExtent.start.getTime()),
+                end: timeExtent.end
+            }
+            break;
+        case 'cumulative-from-start':
+            timeSlider.timeExtent = {
+                start: null,
+                end: timeExtent.end
+            }
+            break;
+    }
+}
+
+function timeSliderPlayRate(range) {
+    timeSlider.set({
+        playRate: range.value
+    });
+    document.getElementById('timeSliderPlayRate').innerHTML = range.value;
+}
 
 function getLayerSymbol(layer) {
     let symbol;
@@ -668,7 +793,6 @@ function saveSymbology(layerName) {
 }
 
 function setIcon(element) {
-    // pointIcon = String.fromCharCode(parseInt(element.dataset.code.replace('\\u', ''), 16));
     document.getElementsByClassName('active-icon')[0]?.classList?.remove('active-icon');
     element.classList.add('active-icon');
 }
@@ -1014,6 +1138,83 @@ function openLayerOptionModal() {
 function openLayerEditModal() {
     window['init' + activeTocLayer.ucFirst() + 'Modal']();
     openModal(activeTocLayer + 'SymbologyModal');
+}
+
+function addLayerToTimeSlider() {
+    if (!timeSliderLayers.includes(activeTocLayer)) {
+        timeSliderLayers.push(activeTocLayer);
+        timeSliderCheckedLayers.push(activeTocLayer);
+        document.getElementById("timeSliderLayers").insertAdjacentHTML("beforeend", `<li id="${activeTocLayer}TimeSliderLayer"><label><input type="checkbox" checked onchange="this" onclick="toggleTimeSliderCheckedLayer('${activeTocLayer}')"> ${activeTocLayer}</label> <button class="esri-widget--button" title="Delete" onclick="removeLayerFromTimeSlider('${activeTocLayer}')"><div class="esri-icon-trash"></div></button></li>`);
+        calcTimeSliderTimeExtent();
+        applyTimeExtentToLayers();
+    }
+}
+
+function toggleTimeSliderCheckedLayer(layerName) {
+    if (!timeSliderCheckedLayers.includes(layerName)) {
+        timeSliderCheckedLayers.push(layerName);
+    } else {
+        timeSliderCheckedLayers.splice(timeSliderCheckedLayers.indexOf(layerName), 1);
+    }
+    calcTimeSliderTimeExtent();
+}
+
+function removeLayerFromTimeSlider(layerName) {
+    timeSliderLayers.splice(timeSliderLayers.indexOf(layerName), 1);
+    timeSliderCheckedLayers.splice(timeSliderCheckedLayers.indexOf(layerName), 1);
+    document.getElementById(layerName + 'FeaturesCount').innerHTML = '';
+    document.getElementById(layerName + 'TimeSliderLayer').remove();
+    layers[layerName].definitionExpression = '';
+    calcTimeSliderTimeExtent();
+    applyTimeExtentToLayers();
+}
+
+function calcTimeSliderTimeExtent() {
+    if (timeSliderCheckedLayers.length === 0) {
+        timeSlider.timeExtent = null;
+        timeSlider.fullTimeExtent = null;
+        return;
+    }
+    let absoluteStart = Number.MAX_VALUE;
+    let absoluteEnd = 0;
+    for (const timeSliderLayer of timeSliderCheckedLayers) {
+        if (absoluteStart > layers[timeSliderLayer].fullTimeExtent.start) {
+            absoluteStart = layers[timeSliderLayer].fullTimeExtent.start;
+        }
+        if (absoluteEnd < layers[timeSliderLayer].fullTimeExtent.end) {
+            absoluteEnd = layers[timeSliderLayer].fullTimeExtent.end;
+        }
+    }
+    timeSlider.fullTimeExtent = {
+        start: absoluteStart,
+        end: absoluteEnd,
+    }
+    timeSlider.timeExtent = {
+        start: absoluteStart,
+        end: new Date(absoluteStart).setFullYear(new Date(absoluteStart).getFullYear() + 1),
+    }
+}
+
+function applyTimeExtentToLayers() {
+    if (timeSliderLayers.length === 0) {
+        return;
+    }
+    let query = '';
+    if (timeSlider.timeExtent?.end) {
+        query += "time <= " + timeSlider.timeExtent?.end?.getTime();
+    }
+    if (timeSlider.timeExtent?.start) {
+        query += " and time >= " + timeSlider.timeExtent?.start?.getTime();
+    }
+    for (const timeSliderLayer of timeSliderLayers) {
+        layers[timeSliderLayer].definitionExpression = query;
+        layers[timeSliderLayer]
+            .queryFeatures(layers[timeSliderLayer].createQuery())
+            .then((result) => {
+                    document.getElementById(timeSliderLayer + 'FeaturesCount').innerHTML = ' (' + result.features.length + ')';
+                }
+            );
+    }
 }
 
 Object.defineProperty(String.prototype, 'ucFirst', {
