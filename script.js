@@ -90,7 +90,8 @@ const layersInfo = {
                 minDensity: 0,
                 radius: 15
             }
-        }
+        },
+        initialDefinitionExpression: '',
     },
     polylineLayer: {
         renderers: {
@@ -130,7 +131,8 @@ const layersInfo = {
                     }
                 ]
             },
-        }
+        },
+        initialDefinitionExpression: '',
     },
     polygonLayer: {
         renderers: {
@@ -176,7 +178,8 @@ const layersInfo = {
                     }
                 ]
             },
-        }
+        },
+        initialDefinitionExpression: '',
     },
 }
 
@@ -328,7 +331,7 @@ require([
         timeSliderTools.insertAdjacentHTML("beforeend", ``);
         const ts = document.getElementById('timeSliderDiv');
         ts.append(timeSliderTools);
-    }, function (error) {
+    }, function () {
         alert("error");
     });
 
@@ -398,6 +401,7 @@ require([
             start: new Date(2000, 1, 1).getTime(),
             end: new Date(2004, 1, 1).getTime()
         },
+        definitionExpression: '',
     });
     layers.polylineLayer = new FeatureLayer({
         source: polylineData.map(function (line) {
@@ -448,6 +452,7 @@ require([
             start: new Date(2003, 1, 1).getTime(),
             end: new Date(2006, 1, 1).getTime()
         },
+        definitionExpression: '',
     });
 
     layers.polygonLayer = new FeatureLayer({
@@ -499,6 +504,7 @@ require([
             start: new Date(2005, 1, 1).getTime(),
             end: new Date(2008, 1, 1).getTime()
         },
+        definitionExpression: '',
     });
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
@@ -512,8 +518,10 @@ require([
                 height: 4
             }
         });
+        layersInfo[layerName].initialDefinitionExpression = layers[layerName].definitionExpression;
+        updateLayerFeaturesCount(layerName);
     });
-    timeSlider.watch("timeExtent", (value) => {
+    timeSlider.watch("timeExtent", () => {
         applyTimeExtentToLayers();
     });
 });
@@ -1146,7 +1154,6 @@ function addLayerToTimeSlider() {
         timeSliderCheckedLayers.push(activeTocLayer);
         document.getElementById("timeSliderLayers").insertAdjacentHTML("beforeend", `<li id="${activeTocLayer}TimeSliderLayer"><label><input type="checkbox" checked onchange="this" onclick="toggleTimeSliderCheckedLayer('${activeTocLayer}')"> ${activeTocLayer}</label> <button class="esri-widget--button" title="Delete" onclick="removeLayerFromTimeSlider('${activeTocLayer}')"><div class="esri-icon-trash"></div></button></li>`);
         calcTimeSliderTimeExtent();
-        applyTimeExtentToLayers();
     }
 }
 
@@ -1155,6 +1162,8 @@ function toggleTimeSliderCheckedLayer(layerName) {
         timeSliderCheckedLayers.push(layerName);
     } else {
         timeSliderCheckedLayers.splice(timeSliderCheckedLayers.indexOf(layerName), 1);
+        layers[layerName].definitionExpression = layersInfo[layerName].initialDefinitionExpression;
+        updateLayerFeaturesCount(layerName)
     }
     calcTimeSliderTimeExtent();
 }
@@ -1162,11 +1171,10 @@ function toggleTimeSliderCheckedLayer(layerName) {
 function removeLayerFromTimeSlider(layerName) {
     timeSliderLayers.splice(timeSliderLayers.indexOf(layerName), 1);
     timeSliderCheckedLayers.splice(timeSliderCheckedLayers.indexOf(layerName), 1);
-    document.getElementById(layerName + 'FeaturesCount').innerHTML = '';
     document.getElementById(layerName + 'TimeSliderLayer').remove();
-    layers[layerName].definitionExpression = '';
+    layers[layerName].definitionExpression = layersInfo[layerName].initialDefinitionExpression;
+    updateLayerFeaturesCount(layerName);
     calcTimeSliderTimeExtent();
-    applyTimeExtentToLayers();
 }
 
 function calcTimeSliderTimeExtent() {
@@ -1196,7 +1204,7 @@ function calcTimeSliderTimeExtent() {
 }
 
 function applyTimeExtentToLayers() {
-    if (timeSliderLayers.length === 0) {
+    if (timeSliderCheckedLayers.length === 0) {
         return;
     }
     let query = '';
@@ -1206,15 +1214,19 @@ function applyTimeExtentToLayers() {
     if (timeSlider.timeExtent?.start) {
         query += " and time >= " + timeSlider.timeExtent?.start?.getTime();
     }
-    for (const timeSliderLayer of timeSliderLayers) {
+    for (const timeSliderLayer of timeSliderCheckedLayers) {
         layers[timeSliderLayer].definitionExpression = query;
-        layers[timeSliderLayer]
-            .queryFeatures(layers[timeSliderLayer].createQuery())
-            .then((result) => {
-                    document.getElementById(timeSliderLayer + 'FeaturesCount').innerHTML = ' (' + result.features.length + ')';
-                }
-            );
+        updateLayerFeaturesCount(timeSliderLayer)
     }
+}
+
+function updateLayerFeaturesCount(layerName) {
+    layers[layerName]
+        .queryFeatures(layers[layerName].createQuery())
+        .then((result) => {
+                document.getElementById(layerName + 'FeaturesCount').innerHTML = ' (' + result.features.length + ')';
+            }
+        );
 }
 
 Object.defineProperty(String.prototype, 'ucFirst', {
