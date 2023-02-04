@@ -5,6 +5,7 @@ body,
     margin: 0;
     height: 100%;
     width: 100%;
+    position: relative;
 }
 
 .layer-button {
@@ -322,4 +323,9 @@ body,
 #timeSliderLayers li button {
     border: none;
     background-color: transparent;
+}
+
+#timeSliderDiv {
+    cursor: move;
+    position: relative;
 }
