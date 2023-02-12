@@ -336,6 +336,44 @@
         </div>
     </div>
 </div>
+<div id="addFeatureToLayerModal" class="modal" role="dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add feature to layer</h3>
+            <span class="close" onclick="closeModal('addFeatureToLayerModal')">&times;</span>
+        </div>
+        <div class="form-field">
+            <label>
+                Layer:
+                <select id="addFeatureToLayerSelect">
+                </select>
+            </label>
+        </div>
+        <div class="form-field">
+            <label>
+                ObjectId:
+                <input id="addFeatureObjectId" required />
+            </label>
+        </div>
+        <div class="form-field">
+            <label>
+                Name:
+                <input id="addFeatureName" required />
+            </label>
+        </div>
+        <div class="form-field">
+            <label>
+                Date:
+                <input id="addFeatureTime" type="date" required />
+            </label>
+        </div>
+        <hr>
+        <div class="modal-footer">
+            <button onclick="closeModal('addFeatureToLayerModal')">Cancel</button>
+            <button onclick="addToGraphicToLayer()">Confirm</button>
+        </div>
+    </div>
+</div>
 
 <div id="layerLabelModal" class="modal" role="dialog">
     <div class="modal-content">
@@ -383,6 +421,11 @@
         <button onclick="openLayerEditModal()">Edit</button>
         <button onclick="openLayerOptionModal()">Set label</button>
         <button onclick="addLayerToTimeSlider()">Add to Time Slider</button>
+    </div>
+</div>
+<div id="sketchOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu('sketchOptionMenuContainer')">
+    <div id="sketchOptionMenu" class="layer-option-menu">
+        <button onclick="showAddFeatureToLayerModal()">Add to layer</button>
     </div>
 </div>
 </body>

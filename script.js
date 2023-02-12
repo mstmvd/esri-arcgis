@@ -257,6 +257,7 @@ const timeSliderPlayRates = [
     {title: 'Fast', playRate: 100},
 ]
 let timeSliderPlayRateIndex = 1;
+let selectedSketchGraphic;
 
 require([
     "esri/Map",
@@ -331,7 +332,7 @@ require([
         timeSliderTools.insertAdjacentHTML("beforeend", ``);
         const ts = document.getElementById('timeSliderDiv');
         ts.append(timeSliderTools);
-        dragElement(document.getElementById('timeSliderDiv'));
+        dragElement(document.getElementById('timeSliderDiv'), '.esri-time-slider__row:first-child');
     }, function () {
         alert("error");
     });
@@ -510,6 +511,30 @@ require([
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 
+    view
+        .when()
+        .then(function () {
+            return sketchLayer.when();
+        }).then(function (layerView) {
+            view.on("click", eventHandler);
+
+            function eventHandler(event) {
+                if (event.button === 2) {
+                    view.hitTest(event).then(function (evt) {
+                        const results = evt.results.filter(function (result) {
+                            return result.graphic.layer === sketchLayer;
+                        });
+                        if (results.length) {
+                            const graphic = results[0].graphic;
+                            selectedSketchGraphic = graphic;
+                            showSketchOptionsMenu(event, graphic);
+                        }
+                    });
+                }
+            }
+        }
+    );
+
     Object.keys(layers).forEach((layerName) => {
         const layer = layers[layerName];
         symbolUtils.renderPreviewHTML(getLayerSymbol(layer), {
@@ -534,6 +559,7 @@ function timeSliderToBeginning() {
         end: new Date(start.getTime()).setFullYear(start.getFullYear() + 1)
     };
 }
+
 function timeSliderToEnd() {
     const end = new Date(timeSlider.fullTimeExtent.end.getTime());
     timeSlider.timeExtent = {
@@ -1095,8 +1121,8 @@ function showLayerOptionsMenu(event, layer) {
     menu.style.left = event.clientX + 'px';
 }
 
-function dismissMenu() {
-    const menuContainer = document.getElementById('layerOptionMenuContainer');
+function dismissMenu(id = 'layerOptionMenuContainer') {
+    const menuContainer = document.getElementById(id);
     menuContainer.style.display = 'none';
 }
 
@@ -1284,9 +1310,13 @@ function selectIcon() {
     closeModal('selectIconModal');
 }
 
-function dragElement(elmnt) {
+function dragElement(elmnt, draggable) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    elmnt.onmousedown = dragMouseDown;
+    if (draggable) {
+        elmnt.querySelector(draggable).onmousedown = dragMouseDown;
+    } else {
+        elmnt.onmousedown = dragMouseDown;
+    }
 
     function dragMouseDown(e) {
         e = e || window.event;
@@ -1312,4 +1342,69 @@ function dragElement(elmnt) {
         document.onmouseup = null;
         document.onmousemove = null;
     }
+}
+
+function showSketchOptionsMenu(event) {
+    event.preventDefault();
+    const menuContainer = document.getElementById('sketchOptionMenuContainer');
+    menuContainer.style.display = 'block';
+    const menu = document.getElementById('sketchOptionMenu');
+    menu.style.top = event.y - menu.offsetHeight + 'px';
+    menu.style.left = event.x + 'px';
+}
+
+function showAddFeatureToLayerModal() {
+    const select = document.getElementById('addFeatureToLayerSelect');
+    select.innerHTML = '';
+    for (const layer of Object.keys(layers)) {
+        const option = document.createElement('option');
+        option.value = layer;
+        option.innerHTML = layer.toPascalCase();
+        select.append(option);
+    }
+    document.getElementById('addFeatureObjectId').value = '';
+    document.getElementById('addFeatureName').value = '';
+    document.getElementById('addFeatureTime').value = '';
+    openModal('addFeatureToLayerModal');
+}
+
+function addToGraphicToLayer() {
+    const layerName = document.getElementById('addFeatureToLayerSelect').value;
+    const objectId = document.getElementById('addFeatureObjectId').value;
+    const name = document.getElementById('addFeatureName').value;
+    const time = new Date(document.getElementById('addFeatureTime').value).getTime();
+    if (!objectId || !name || !time) {
+        alert('Please fill all the fields');
+        return;
+    }
+    if (layers[layerName].geometryType !== selectedSketchGraphic.geometry.type) {
+        alert('Selected layer is not compatible with selected sketch graphic!');
+        return;
+    }
+    layers[layerName].applyEdits({
+            addFeatures: [
+                {
+                    geometry: selectedSketchGraphic.geometry,
+                    attributes: {
+                        ObjectId: objectId,
+                        name: name,
+                        time: new Date(time).getTime(),
+                    },
+                }
+            ]
+        }
+    ).then(() => {
+        if (time) {
+            if (time > layers[layerName].fullTimeExtent.end) {
+                layers[layerName].fullTimeExtent.end = time + 31556926000;//add one year to time extent for better result on timeSlider
+            }
+            if (time < layers[layerName].fullTimeExtent.start) {
+                layers[layerName].fullTimeExtent.start = time - 31556926000;//subtract one year from time extent for better result on timeSlider
+            }
+        }
+        updateLayerFeaturesCount(layerName);
+        calcTimeSliderTimeExtent();
+    });
+
+    closeModal('addFeatureToLayerModal');
 }
