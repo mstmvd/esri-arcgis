@@ -516,7 +516,7 @@ require([
         .then(function () {
             return sketchLayer.when();
         }).then(function (layerView) {
-            view.on("click", eventHandler);
+            view.on("pointer-up", eventHandler);
 
             function eventHandler(event) {
                 if (event.button === 2) {
