@@ -277,8 +277,9 @@ require([
     "esri/renderers/support/UniqueValueInfo",
     "esri/renderers/support/ClassBreakInfo",
     "esri/renderers/support/HeatmapColorStop",
-    "esri/widgets/TimeSlider"
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider) {
+    "esri/widgets/TimeSlider",
+    "esri/widgets/BasemapGallery",
+], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider, BasemapGallery) {
     window.UniqueValueInfo = UniqueValueInfo;
     window.ClassBreakInfo = ClassBreakInfo;
     window.HeatmapColorStop = HeatmapColorStop;
@@ -339,6 +340,13 @@ require([
     });
 
     view.ui.add(timeSlider, "bottom-trailing");
+
+    let basemapGallery = new BasemapGallery({
+        view: view
+    });
+    view.ui.add(basemapGallery, {
+        position: "top-right"
+    });
 
     layersInfo.pointLayer.renderers.simple = new SimpleRenderer(layersInfo.pointLayer.renderers.simple);
     layersInfo.pointLayer.renderers.uniqueValue = new UniqueValueRenderer(layersInfo.pointLayer.renderers.uniqueValue);
