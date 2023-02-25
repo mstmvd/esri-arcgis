@@ -1357,12 +1357,14 @@ function showAddFeatureToLayerModal() {
     const select = document.getElementById('addFeatureToLayerSelect');
     select.innerHTML = '';
     for (const layer of Object.keys(layers)) {
+        if (layers[layer].geometryType !== selectedSketchGraphic.geometry.type) {
+            continue;
+        }
         const option = document.createElement('option');
         option.value = layer;
         option.innerHTML = layer.toPascalCase();
         select.append(option);
     }
-    document.getElementById('addFeatureObjectId').value = '';
     document.getElementById('addFeatureName').value = '';
     document.getElementById('addFeatureTime').value = '';
     openModal('addFeatureToLayerModal');
@@ -1370,10 +1372,9 @@ function showAddFeatureToLayerModal() {
 
 function addToGraphicToLayer() {
     const layerName = document.getElementById('addFeatureToLayerSelect').value;
-    const objectId = document.getElementById('addFeatureObjectId').value;
     const name = document.getElementById('addFeatureName').value;
     const time = new Date(document.getElementById('addFeatureTime').value).getTime();
-    if (!objectId || !name || !time) {
+    if (!name || !time) {
         alert('Please fill all the fields');
         return;
     }
@@ -1386,7 +1387,6 @@ function addToGraphicToLayer() {
                 {
                     geometry: selectedSketchGraphic.geometry,
                     attributes: {
-                        ObjectId: objectId,
                         name: name,
                         time: new Date(time).getTime(),
                     },
