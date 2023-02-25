@@ -345,22 +345,10 @@
         <div class="form-field">
             <label>
                 Layer:
-                <select id="addFeatureToLayerSelect">
-                </select>
+                <select id="addFeatureToLayerSelect" onchange="addFeatureCreateFields(event.target.value)"></select>
             </label>
         </div>
-        <div class="form-field">
-            <label>
-                Name:
-                <input id="addFeatureName" required />
-            </label>
-        </div>
-        <div class="form-field">
-            <label>
-                Date:
-                <input id="addFeatureTime" type="date" required />
-            </label>
-        </div>
+        <div id="addFeatureFields"></div>
         <hr>
         <div class="modal-footer">
             <button onclick="closeModal('addFeatureToLayerModal')">Cancel</button>

@@ -258,6 +258,7 @@ const timeSliderPlayRates = [
 ]
 let timeSliderPlayRateIndex = 1;
 let selectedSketchGraphic;
+const supportedFeatureFieldTypes = ['small-integer', 'integer', 'single', 'double', 'long', 'date', 'string'];
 
 require([
     "esri/Map",
@@ -1356,40 +1357,78 @@ function showSketchOptionsMenu(event) {
 function showAddFeatureToLayerModal() {
     const select = document.getElementById('addFeatureToLayerSelect');
     select.innerHTML = '';
+    const validLayers = [];
     for (const layer of Object.keys(layers)) {
         if (layers[layer].geometryType !== selectedSketchGraphic.geometry.type) {
             continue;
         }
+        validLayers.push(layer);
         const option = document.createElement('option');
         option.value = layer;
         option.innerHTML = layer.toPascalCase();
         select.append(option);
     }
-    document.getElementById('addFeatureName').value = '';
-    document.getElementById('addFeatureTime').value = '';
-    openModal('addFeatureToLayerModal');
+    if (validLayers?.length > 0) {
+        addFeatureCreateFields(validLayers[0]);
+        openModal('addFeatureToLayerModal');
+    } else {
+        alert('No valid layer found to add this graphic to it.')
+    }
+}
+
+function addFeatureCreateFields(layerName) {
+    const fieldsContainer = document.getElementById('addFeatureFields');
+    fieldsContainer.innerHTML = '';
+    for (const layerField of layers[layerName].fields) {
+        if (supportedFeatureFieldTypes.includes(layerField.type)) {
+            let inputType = 'text';
+            switch (layerField.type) {
+                case 'small-integer':
+                case 'integer':
+                case 'single':
+                case 'double':
+                case 'long':
+                    inputType = 'number';
+                    break;
+                case 'date':
+                    inputType = 'date';
+                    break;
+
+            }
+            fieldsContainer.insertAdjacentHTML('beforeend', ` <div class="form-field"> <label> ${layerField.name.ucFirst()}: <input id="addFeatureField_${layerField.name}" type="${inputType}" required /> </label> </div> `);
+        }
+    }
 }
 
 function addToGraphicToLayer() {
     const layerName = document.getElementById('addFeatureToLayerSelect').value;
-    const name = document.getElementById('addFeatureName').value;
-    const time = new Date(document.getElementById('addFeatureTime').value).getTime();
-    if (!name || !time) {
-        alert('Please fill all the fields');
-        return;
-    }
     if (layers[layerName].geometryType !== selectedSketchGraphic.geometry.type) {
         alert('Selected layer is not compatible with selected sketch graphic!');
         return;
+    }
+    const featureAttributes = {};
+    let time;
+    for (const layerField of layers[layerName].fields) {
+        if (supportedFeatureFieldTypes.includes(layerField.type)) {
+            let value = document.getElementById(`addFeatureField_${layerField.name}`).value;
+            if (!value) {
+                alert('Please fill all the fields');
+                return;
+            }
+            if (layerField.type === 'date') {
+                value = new Date(value).getTime();
+                if (layerField.name === 'time') {
+                    time = value;
+                }
+            }
+            featureAttributes[layerField.name] = value;
+        }
     }
     layers[layerName].applyEdits({
             addFeatures: [
                 {
                     geometry: selectedSketchGraphic.geometry,
-                    attributes: {
-                        name: name,
-                        time: new Date(time).getTime(),
-                    },
+                    attributes: featureAttributes,
                 }
             ]
         }
