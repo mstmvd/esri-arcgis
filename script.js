@@ -282,7 +282,9 @@ require([
     "esri/renderers/support/HeatmapColorStop",
     "esri/widgets/TimeSlider",
     "esri/widgets/BasemapGallery",
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider, BasemapGallery) {
+    "esri/widgets/Sketch/SketchViewModel",
+    "esri/geometry/geometryEngineAsync",
+], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider, BasemapGallery, SketchViewModel, geometryEngineAsync) {
     window.UniqueValueInfo = UniqueValueInfo;
     window.ClassBreakInfo = ClassBreakInfo;
     window.HeatmapColorStop = HeatmapColorStop;
@@ -482,8 +484,6 @@ require([
                 }
             });
         }),
-        // effect: "bloom(1.5, 0.5px, 0.1)",
-        featureEffect: null,
         renderer: layersInfo.polygonLayer.renderers.uniqueValue,
         fields: [
             {
@@ -524,63 +524,58 @@ require([
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 
+    tempSketchLayer = new GraphicsLayer();
+    const sketchViewModel = new SketchViewModel({
+        view: view,
+        layer: tempSketchLayer,
+        defaultCreateOptions: {
+            mode: "freehand"
+        }
+    });
+
+    // Once user is done drawing a rectangle on the map
+    // use the rectangle to select features on the map and table
+    sketchViewModel.on("create", async (event) => {
+        if (event.state === "complete") {
+            // this polygon will be used to query features that intersect it
+            const geometries = tempSketchLayer.graphics.map(function (graphic) {
+                return graphic.geometry
+            });
+            const queryGeometry = await geometryEngineAsync.union(geometries.toArray());
+            selectFeatures(queryGeometry);
+        }
+    });
+
+    function selectFeatures(geometry) {
+        for (const layerName in layers) {
+            const query = {
+                geometry: geometry,
+                outFields: ["*"]
+            };
+            layers[layerName].queryFeatures(query)
+                .then((results) => {
+                    if (results.features.length > 0) {
+                        for (const feature of results.features) {
+                            selectGraphic(feature, 'add');
+                        }
+                        updateSelectedObjects();
+                    }
+                });
+        }
+    }
+
     view
         .when()
         .then(function () {
             return sketchLayer.when();
         }).then(function (layerView) {
-            view.on("pointer-up", eventHandler);
+            view.on("pointer-up", addToLayer);
             view.on("pointer-up", selectObject);
+            view.on("key-down", startSelectWithCtrl);
+            view.on("pointer-move", startSelectWithPointer);
+            view.on("key-up", cancelSelect);
 
-            function selectObject(event) {
-                if (event.button === 0 && event.native.ctrlKey) {
-                    view.hitTest(event).then(function (evt) {
-                        const results = evt.results.filter(function (result) {
-                            return true;
-                        });
-                        if (results.length) {
-                            for (const result of results) {
-                                if (result.type === 'graphic') {
-                                    let layer;
-                                    let layerName;
-                                    Object.keys(layers).forEach(name => {
-                                        if (layers[name].id === result.graphic.layer.id) {
-                                            layer = layers[name];
-                                            layerName = name;
-                                        }
-                                    });
-                                    if (!layer) {
-                                        continue;
-                                    }
-                                    const objectId = result.graphic.attributes.ObjectID;
-                                    const idIndex = layersInfo[layerName].selectedObjectIds.indexOf(objectId);
-                                    if (idIndex >= 0) {
-                                        layersInfo[layerName].selectedObjectIds.splice(idIndex, 1);
-                                    } else {
-                                        layersInfo[layerName].selectedObjectIds.push(objectId);
-                                    }
-                                }
-                            }
-                            Object.keys(layers).forEach(layerName => {
-                                const objectIds = [];
-                                for (const selectedObjectId of layersInfo[layerName].selectedObjectIds) {
-                                    objectIds.push('ObjectId=' + selectedObjectId);
-                                }
-                                if (objectIds.length > 0) {
-                                    layers[layerName].featureEffect = {
-                                        filter: {where: objectIds.join(' or ')},
-                                        includedEffect: "drop-shadow(6px, 6px, 6px) brightness(2)",
-                                    }
-                                } else {
-                                    layers[layerName].featureEffect = null;
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-
-            function eventHandler(event) {
+            function addToLayer(event) {
                 if (event.button === 2) {
                     view.hitTest(event).then(function (evt) {
                         const results = evt.results.filter(function (result) {
@@ -594,8 +589,86 @@ require([
                     });
                 }
             }
+
+            function selectObject(event) {
+                if (event.button === 0 && event.native.ctrlKey) {
+                    view.hitTest(event).then(function (evt) {
+                        const results = evt.results.filter(function (result) {
+                            return true;
+                        });
+                        if (results.length) {
+                            for (const result of results) {
+                                if (result.type === 'graphic') {
+                                    selectGraphic(result.graphic, 'toggle');
+                                    break;
+                                }
+                            }
+                            updateSelectedObjects();
+                        }
+                    });
+                }
+            }
+
+            function startSelectWithCtrl(event) {
+                if (event.key === 'Control' && sketchViewModel.state !== 'active') {
+                    sketchViewModel.create("rectangle");
+                }
+            }
+
+            function startSelectWithPointer(event) {
+                event.stopPropagation();
+                if (event.native.ctrlKey && sketchViewModel.state !== 'active') {
+                    sketchViewModel.create('rectangle');
+                }
+            }
+
+            function cancelSelect(event) {
+                if (event.key === 'Control') {
+                    sketchViewModel.cancel();
+                }
+            }
         }
     );
+
+    function selectGraphic(graphic, mode = 'add') {
+        let layer;
+        let layerName;
+        Object.keys(layers).forEach(name => {
+            if (layers[name].id === graphic.layer?.id) {
+                layer = layers[name];
+                layerName = name;
+            }
+        });
+        if (!layer) {
+            return;
+        }
+        const objectId = graphic.attributes.ObjectID;
+        const idIndex = layersInfo[layerName].selectedObjectIds.indexOf(objectId);
+        if (idIndex >= 0) {
+            if (mode === 'toggle') {
+                layersInfo[layerName].selectedObjectIds.splice(idIndex, 1);
+            }
+        } else {
+            layersInfo[layerName].selectedObjectIds.push(objectId);
+        }
+    }
+
+    function updateSelectedObjects() {
+        Object.keys(layers).forEach(layerName => {
+            const objectIds = [];
+            for (const selectedObjectId of layersInfo[layerName].selectedObjectIds) {
+                objectIds.push('ObjectId=' + selectedObjectId);
+            }
+            if (objectIds.length > 0) {
+                layers[layerName].featureEffect = {
+                    filter: {where: objectIds.join(' or ')},
+                    includedEffect: "drop-shadow(6px, 6px, 6px) brightness(2)",
+                };
+            } else {
+                layers[layerName].featureEffect = null;
+            }
+        });
+    }
 
     Object.keys(layers).forEach((layerName) => {
         const layer = layers[layerName];
