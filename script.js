@@ -371,6 +371,7 @@ require([
 
     map = new Map({
         basemap: "hybrid",
+        ground: "world-elevation",
     });
 
     const viewConfig = {
