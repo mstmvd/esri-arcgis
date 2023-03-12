@@ -332,3 +332,7 @@ body,
 #timeSliderDiv .esri-time-slider__row:first-child {
     cursor: move;
 }
+
+.no-border {
+    border: none;
+}

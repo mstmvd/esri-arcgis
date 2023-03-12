@@ -312,7 +312,6 @@ const polygonData = [
     },
 ];
 let map;
-let sketchLayer;
 
 const labelPlacement = {
     pointLayer: ['above-center', 'above-left', 'above-right', 'below-center', 'below-left', 'below-right', 'center-center', 'center-left', 'center-right'],
@@ -339,6 +338,7 @@ const supportedFeatureFieldTypes = ['small-integer', 'integer', 'single', 'doubl
 require([
     "esri/Map",
     "esri/views/MapView",
+    "esri/views/SceneView",
     "esri/Graphic",
     "esri/layers/GraphicsLayer",
     "esri/layers/FeatureLayer",
@@ -357,33 +357,30 @@ require([
     "esri/widgets/BasemapGallery",
     "esri/widgets/Sketch/SketchViewModel",
     "esri/geometry/geometryEngineAsync",
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider, BasemapGallery, SketchViewModel, geometryEngineAsync) {
+], function (Map, MapView, SceneView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider, BasemapGallery, SketchViewModel, geometryEngineAsync) {
     window.UniqueValueInfo = UniqueValueInfo;
     window.ClassBreakInfo = ClassBreakInfo;
     window.HeatmapColorStop = HeatmapColorStop;
     globalSymbolUtils = symbolUtils;
-    sketchLayer = new GraphicsLayer();
+    const sketchLayer = new GraphicsLayer();
+    const tempSketchLayer = new GraphicsLayer();
+    const switchButton = document.getElementById("switch-btn");
+    const toc = document.getElementById('toc');
+    let is3D = false;
+    let sketchViewModel;
 
     map = new Map({
         basemap: "hybrid",
     });
 
-    view = new MapView({
+    const viewConfig = {
         container: "viewDiv",
         map: map,
         zoom: initialZoom,
         center: initialCoordinate,
-    });
-    view.when(() => {
-        const sketch = new Sketch({
-            layer: sketchLayer,
-            view: view,
-            creationMode: "update"
-        });
-        view.ui.add([{component: sketch, index: 0, position: "top-left"}]);
-    });
+    };
 
-    view.ui.add(document.getElementById('toc'), 'bottom-left');
+    initView();
 
     timeSlider = new TimeSlider({
         container: "timeSliderDiv",
@@ -417,14 +414,73 @@ require([
         alert("error");
     });
 
-    view.ui.add(timeSlider, "bottom-trailing");
+    timeSlider.watch("timeExtent", () => {
+        applyTimeExtentToLayers();
+    });
 
     let basemapGallery = new BasemapGallery({
         view: view
     });
-    view.ui.add(basemapGallery, {
-        position: "top-right"
+
+    switchButton.addEventListener("click", () => {
+        initView();
     });
+
+    function initView() {
+        let viewPoint;
+        if (view?.viewpoint) {
+            viewPoint = view.viewpoint.clone();
+        }
+        if (is3D) {
+            view = new SceneView(viewConfig);
+            is3D = false;
+            switchButton.value = '2D';
+        } else {
+            view = new MapView(viewConfig);
+            is3D = true;
+            switchButton.value = '3D';
+        }
+        if (viewPoint) {
+            view.viewpoint = viewPoint;
+        }
+        view.when(() => {
+            const sketch = new Sketch({
+                layer: sketchLayer,
+                view: view,
+                creationMode: "update"
+            });
+            sketchViewModel = new SketchViewModel({
+                view: view,
+                layer: tempSketchLayer,
+                defaultCreateOptions: {
+                    mode: "freehand"
+                }
+            });
+            sketchViewModel.on("create", async (event) => {
+                if (event.state === "complete") {
+                    // this polygon will be used to query features that intersect it
+                    const geometries = tempSketchLayer.graphics.map(function (graphic) {
+                        return graphic.geometry
+                    });
+                    const queryGeometry = await geometryEngineAsync.union(geometries.toArray());
+                    selectFeatures(queryGeometry);
+                }
+            });
+            view.ui.add([
+                {component: sketch, index: 0, position: "top-left"},
+                {component: basemapGallery, index: 0, position: "top-right"},
+                {component: toc, index: 0, position: "bottom-left"},
+                {component: switchButton, index: 1, position: "top-left"},
+                {component: timeSlider, index: 0, position: "bottom-trailing"},
+            ]);
+        }).then(function () {
+            view.on("pointer-up", addToLayer);
+            view.on("pointer-up", selectObject);
+            view.on("key-down", startSelectWithCtrl);
+            view.on("pointer-move", startSelectWithPointer);
+            view.on("key-up", cancelSelect);
+        });
+    }
 
     layersInfo.pointLayer.renderers.simple = new SimpleRenderer(layersInfo.pointLayer.renderers.simple);
     layersInfo.pointLayer.renderers.uniqueValue = new UniqueValueRenderer(layersInfo.pointLayer.renderers.uniqueValue);
@@ -604,28 +660,6 @@ require([
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 
-    tempSketchLayer = new GraphicsLayer();
-    const sketchViewModel = new SketchViewModel({
-        view: view,
-        layer: tempSketchLayer,
-        defaultCreateOptions: {
-            mode: "freehand"
-        }
-    });
-
-    // Once user is done drawing a rectangle on the map
-    // use the rectangle to select features on the map and table
-    sketchViewModel.on("create", async (event) => {
-        if (event.state === "complete") {
-            // this polygon will be used to query features that intersect it
-            const geometries = tempSketchLayer.graphics.map(function (graphic) {
-                return graphic.geometry
-            });
-            const queryGeometry = await geometryEngineAsync.union(geometries.toArray());
-            selectFeatures(queryGeometry);
-        }
-    });
-
     function selectFeatures(geometry) {
         for (const layerName in layers) {
             const query = {
@@ -644,71 +678,56 @@ require([
         }
     }
 
-    view
-        .when()
-        .then(function () {
-            return sketchLayer.when();
-        }).then(function (layerView) {
-            view.on("pointer-up", addToLayer);
-            view.on("pointer-up", selectObject);
-            view.on("key-down", startSelectWithCtrl);
-            view.on("pointer-move", startSelectWithPointer);
-            view.on("key-up", cancelSelect);
-
-            function addToLayer(event) {
-                if (event.button === 2) {
-                    view.hitTest(event).then(function (evt) {
-                        const results = evt.results.filter(function (result) {
-                            return result.graphic.layer === sketchLayer;
-                        });
-                        if (results.length) {
-                            const graphic = results[0].graphic;
-                            selectedSketchGraphic = graphic;
-                            showSketchOptionsMenu(event, graphic);
-                        }
-                    });
+    function addToLayer(event) {
+        if (event.button === 2) {
+            view.hitTest(event).then(function (evt) {
+                const results = evt.results.filter(function (result) {
+                    return result.graphic.layer === sketchLayer;
+                });
+                if (results.length) {
+                    const graphic = results[0].graphic;
+                    selectedSketchGraphic = graphic;
+                    showSketchOptionsMenu(event, graphic);
                 }
-            }
-
-            function selectObject(event) {
-                if (event.button === 0 && event.native.ctrlKey) {
-                    view.hitTest(event).then(function (evt) {
-                        const results = evt.results.filter(function (result) {
-                            return true;
-                        });
-                        if (results.length) {
-                            for (const result of results) {
-                                if (result.type === 'graphic') {
-                                    selectGraphic(result.graphic, 'toggle');
-                                    break;
-                                }
-                            }
-                            updateSelectedObjects();
-                        }
-                    });
-                }
-            }
-
-            function startSelectWithCtrl(event) {
-                if (event.key === 'Control' && sketchViewModel.state !== 'active') {
-                    sketchViewModel.create("rectangle");
-                }
-            }
-
-            function startSelectWithPointer(event) {
-                event.stopPropagation();
-                if (event.native.ctrlKey && sketchViewModel.state !== 'active') {
-                    sketchViewModel.create('rectangle');
-                }
-            }
-
-            function cancelSelect(event) {
-                if (event.key === 'Control') {
-                    sketchViewModel.cancel();
-                }
-            }
+            });
         }
-    );
+    }
+
+    function selectObject(event) {
+        if (event.button === 0 && event.native.ctrlKey) {
+            event.stopPropagation();
+            view.hitTest(event).then(function (evt) {
+                if (evt?.results?.length) {
+                    for (const result of evt?.results) {
+                        if (result.type === 'graphic') {
+                            selectGraphic(result.graphic, 'toggle');
+                            break;
+                        }
+                    }
+                    updateSelectedObjects();
+                }
+            });
+        }
+    }
+
+    function startSelectWithCtrl(event) {
+        if (event.key === 'Control' && sketchViewModel.state !== 'active') {
+            sketchViewModel.create("rectangle");
+        }
+    }
+
+    function startSelectWithPointer(event) {
+        event.stopPropagation();
+        if (event.native.ctrlKey && sketchViewModel.state !== 'active') {
+            sketchViewModel.create('rectangle');
+        }
+    }
+
+    function cancelSelect(event) {
+        if (event.key === 'Control') {
+            sketchViewModel.cancel();
+        }
+    }
 
     function selectGraphic(graphic, mode = 'add') {
         let layer;
@@ -750,9 +769,8 @@ require([
         });
     }
 
-    Object.keys(layers).forEach((layerName) => {
-        const layer = layers[layerName];
-        symbolUtils.renderPreviewHTML(getLayerSymbol(layer), {
+    for (const layerName in layers) {
+        symbolUtils.renderPreviewHTML(getLayerSymbol(layers[layerName]), {
             node: document.getElementById(layerName + 'SymbologyIcon'),
             size: {
                 width: 24,
@@ -761,10 +779,7 @@ require([
         });
         layersInfo[layerName].initialDefinitionExpression = layers[layerName].definitionExpression;
         updateLayerFeaturesCount(layerName);
-    });
-    timeSlider.watch("timeExtent", () => {
-        applyTimeExtentToLayers();
-    });
+    }
 });
 
 function timeSliderToBeginning() {
