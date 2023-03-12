@@ -92,7 +92,7 @@ const layersInfo = {
             }
         },
         initialDefinitionExpression: '',
-        selectedObjectIds: [],
+        selectedObjectIds: new Map(),
         template: {
             title: "Point Layer",
             outFields: ["*"],
@@ -166,7 +166,7 @@ const layersInfo = {
             },
         },
         initialDefinitionExpression: '',
-        selectedObjectIds: [],
+        selectedObjectIds: new Map(),
         template: {
             title: "Polyline Layer",
             outFields: ["*"],
@@ -233,7 +233,7 @@ const layersInfo = {
             },
         },
         initialDefinitionExpression: '',
-        selectedObjectIds: [],
+        selectedObjectIds: new Map(),
         template: {
             title: "Polygon Layer",
             outFields: ["*"],
@@ -513,7 +513,7 @@ require([
                 },
             });
         }),
-        renderer: layersInfo.pointLayer.renderers.heatmap,
+        renderer: layersInfo.pointLayer.renderers.simple,
         fields: [
             {
                 name: "ObjectID",
@@ -673,7 +673,6 @@ require([
                         for (const feature of results.features) {
                             selectGraphic(feature, 'add');
                         }
-                        updateSelectedObjects();
                     }
                 });
         }
@@ -705,7 +704,6 @@ require([
                             break;
                         }
                     }
-                    updateSelectedObjects();
                 }
             });
         }
@@ -743,31 +741,17 @@ require([
             return;
         }
         const objectId = graphic.attributes.ObjectID;
-        const idIndex = layersInfo[layerName].selectedObjectIds.indexOf(objectId);
-        if (idIndex >= 0) {
+        const highlight = layersInfo[layerName].selectedObjectIds.get(objectId);
+        if (highlight) {
             if (mode === 'toggle') {
-                layersInfo[layerName].selectedObjectIds.splice(idIndex, 1);
+                highlight.remove();
+                layersInfo[layerName].selectedObjectIds.delete(objectId);
             }
         } else {
-            layersInfo[layerName].selectedObjectIds.push(objectId);
+            view.whenLayerView(graphic.layer).then(function(layerView){
+                layersInfo[layerName].selectedObjectIds.set(objectId, layerView.highlight(graphic));
+            });
         }
-    }
-
-    function updateSelectedObjects() {
-        Object.keys(layers).forEach(layerName => {
-            const objectIds = [];
-            for (const selectedObjectId of layersInfo[layerName].selectedObjectIds) {
-                objectIds.push('ObjectID=' + selectedObjectId);
-            }
-            if (objectIds.length > 0) {
-                layers[layerName].featureEffect = {
-                    filter: {where: objectIds.join(' or ')},
-                    includedEffect: "drop-shadow(6px, 6px, 6px) brightness(2)",
-                };
-            } else {
-                layers[layerName].featureEffect = null;
-            }
-        });
     }
 
     for (const layerName in layers) {
