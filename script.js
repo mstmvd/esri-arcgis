@@ -93,6 +93,38 @@ const layersInfo = {
         },
         initialDefinitionExpression: '',
         selectedObjectIds: [],
+        template: {
+            title: "Point Layer",
+            outFields: ["*"],
+            content: [
+                {
+                    type: "fields",
+                    fieldInfos: [
+                        {
+                            fieldName: "ObjectID",
+                            label: "Object ID"
+                        },
+                        {
+                            fieldName: "name",
+                            label: "Name"
+                        },
+                    ]
+                },
+                {
+                    type: "media",
+                    mediaInfos: [
+                        {
+                            title: "Drone",
+                            type: "image",
+                            caption: "Drone",
+                            value: {
+                                sourceURL: "{imageUrl}"
+                            }
+                        }
+                    ]
+                }
+            ],
+        }
     },
     polylineLayer: {
         renderers: {
@@ -135,6 +167,25 @@ const layersInfo = {
         },
         initialDefinitionExpression: '',
         selectedObjectIds: [],
+        template: {
+            title: "Polyline Layer",
+            outFields: ["*"],
+            content: [
+                {
+                    type: "fields",
+                    fieldInfos: [
+                        {
+                            fieldName: "ObjectID",
+                            label: "Object ID"
+                        },
+                        {
+                            fieldName: "name",
+                            label: "Name"
+                        },
+                    ]
+                }
+            ]
+        },
     },
     polygonLayer: {
         renderers: {
@@ -183,6 +234,25 @@ const layersInfo = {
         },
         initialDefinitionExpression: '',
         selectedObjectIds: [],
+        template: {
+            title: "Polygon Layer",
+            outFields: ["*"],
+            content: [
+                {
+                    type: "fields",
+                    fieldInfos: [
+                        {
+                            fieldName: "ObjectID",
+                            label: "Object ID"
+                        },
+                        {
+                            fieldName: "name",
+                            label: "Name"
+                        },
+                    ]
+                }
+            ]
+        },
     },
 }
 
@@ -193,21 +263,24 @@ const pointsData = [
         longitude: -3.6804679,
         latitude: 40.4103000,
         name: 'point1',
-        time: new Date(2001, 1, 1).getTime()
+        time: new Date(2001, 1, 1).getTime(),
+        imageUrl: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3570&q=80'
     },
     {
         id: 2,
         longitude: -3.6774979,
         latitude: 40.4099999,
         name: 'point2',
-        time: new Date(2002, 1, 1).getTime()
+        time: new Date(2002, 1, 1).getTime(),
+        imageUrl: 'https://images.unsplash.com/photo-1521405924368-64c5b84bec60?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2574&q=80'
     },
     {
         id: 3,
         longitude: -3.6784979,
         latitude: 40.4108599,
         name: 'point3',
-        time: new Date(2003, 1, 1).getTime()
+        time: new Date(2003, 1, 1).getTime(),
+        imageUrl: 'https://images.unsplash.com/photo-1495810551032-2043a52a19c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80'
     }
 ];
 const polylineData = [
@@ -371,9 +444,10 @@ require([
         source: pointsData.map(function (place) {
             return new Graphic({
                 attributes: {
-                    ObjectId: place.id,
+                    ObjectID: place.id,
                     name: place.name,
                     time: place.time,
+                    imageUrl: place.imageUrl,
                 },
                 geometry: {
                     type: "point",
@@ -418,12 +492,14 @@ require([
             end: new Date(2004, 1, 1).getTime()
         },
         definitionExpression: '',
+        popupTemplate: layersInfo.pointLayer.template,
+        outFields: ["*"],
     });
     layers.polylineLayer = new FeatureLayer({
         source: polylineData.map(function (line) {
             return new Graphic({
                 attributes: {
-                    ObjectId: line.id,
+                    ObjectID: line.id,
                     name: line.name,
                     time: line.time,
                 },
@@ -469,12 +545,14 @@ require([
             end: new Date(2006, 1, 1).getTime()
         },
         definitionExpression: '',
+        outFields: ["*"],
+        popupTemplate: layersInfo.polylineLayer.template,
     });
     layers.polygonLayer = new FeatureLayer({
         source: polygonData.map(function (polygon) {
             return new Graphic({
                 attributes: {
-                    ObjectId: polygon.id,
+                    ObjectID: polygon.id,
                     name: polygon.name,
                     time: polygon.time,
                 },
@@ -520,6 +598,8 @@ require([
             end: new Date(2008, 1, 1).getTime()
         },
         definitionExpression: '',
+        popupTemplate: layersInfo.polygonLayer.template,
+        outFields: ["*"],
     });
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
@@ -657,7 +737,7 @@ require([
         Object.keys(layers).forEach(layerName => {
             const objectIds = [];
             for (const selectedObjectId of layersInfo[layerName].selectedObjectIds) {
-                objectIds.push('ObjectId=' + selectedObjectId);
+                objectIds.push('ObjectID=' + selectedObjectId);
             }
             if (objectIds.length > 0) {
                 layers[layerName].featureEffect = {
