@@ -264,7 +264,7 @@ const pointsData = [
         latitude: 40.4103000,
         name: 'point1',
         time: new Date(2001, 1, 1).getTime(),
-        imageUrl: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3570&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80'
     },
     {
         id: 2,
@@ -272,7 +272,7 @@ const pointsData = [
         latitude: 40.4099999,
         name: 'point2',
         time: new Date(2002, 1, 1).getTime(),
-        imageUrl: 'https://images.unsplash.com/photo-1521405924368-64c5b84bec60?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2574&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1521405924368-64c5b84bec60?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80'
     },
     {
         id: 3,
@@ -280,7 +280,7 @@ const pointsData = [
         latitude: 40.4108599,
         name: 'point3',
         time: new Date(2003, 1, 1).getTime(),
-        imageUrl: 'https://images.unsplash.com/photo-1495810551032-2043a52a19c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1495810551032-2043a52a19c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80'
     }
 ];
 const polylineData = [
@@ -527,6 +527,10 @@ require([
                 name: "time",
                 alias: "time",
                 type: "date"
+            }, {
+                name: "imageUrl",
+                alias: "imageUrl",
+                type: "string"
             },
         ],
         labelingInfo: [{  // autocasts as new LabelClass()
