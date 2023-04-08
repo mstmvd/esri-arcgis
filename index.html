@@ -405,6 +405,18 @@
         </div>
     </div>
 </div>
+<div id="selectedObjectsModal" class="modal" role="dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Selected features</h3>
+            <span class="close" onclick="closeModal('selectedObjectsModal')">&times;</span>
+        </div>
+        <table cellpadding="8px" cellspacing="0">
+            <thead><tr><th>ObjectId</th><th>Name</th><th>Layer</th></tr></thead>
+            <tbody id="selectedObjectTable"></tbody>
+        </table>
+    </div>
+</div>
 <div id="layerOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu()">
     <div id="layerOptionMenu" class="layer-option-menu">
         <button onclick="showLayer(activeTocLayer)">Zoom to layer</button>
@@ -416,6 +428,11 @@
 <div id="sketchOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu('sketchOptionMenuContainer')">
     <div id="sketchOptionMenu" class="layer-option-menu">
         <button onclick="showAddFeatureToLayerModal()">Add to layer</button>
+    </div>
+</div>
+<div id="selectedObjectsOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu('selectedObjectsOptionMenuContainer')">
+    <div id="selectedObjectsOptionMenu" class="layer-option-menu">
+        <button onclick="openSelectedObjectsModal()">Show all marked features</button>
     </div>
 </div>
 </body>

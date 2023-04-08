@@ -336,3 +336,12 @@ body,
 .no-border {
     border: none;
 }
+
+#selectedObjectsModal table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#selectedObjectsModal table td, #selectedObjectsModal table th {
+    border: 1px solid #000000;
+}

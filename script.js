@@ -477,6 +477,7 @@ require([
         }).then(function () {
             view.on("pointer-up", addToLayer);
             view.on("pointer-up", selectObject);
+            view.on("pointer-up", showSelectedObjectsContextMenu);
             view.on("key-down", startSelectWithCtrl);
             view.on("pointer-move", startSelectWithPointer);
             view.on("key-up", cancelSelect);
@@ -498,6 +499,7 @@ require([
 
     //Define layers
     layers.pointLayer = new FeatureLayer({
+        title: 'Point layer',
         source: pointsData.map(function (place) {
             return new Graphic({
                 attributes: {
@@ -557,6 +559,7 @@ require([
         outFields: ["*"],
     });
     layers.polylineLayer = new FeatureLayer({
+        title: 'Polyline layer',
         source: polylineData.map(function (line) {
             return new Graphic({
                 attributes: {
@@ -610,6 +613,7 @@ require([
         popupTemplate: layersInfo.polylineLayer.template,
     });
     layers.polygonLayer = new FeatureLayer({
+        title: 'Polygon layer',
         source: polygonData.map(function (polygon) {
             return new Graphic({
                 attributes: {
@@ -665,6 +669,41 @@ require([
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 
+    function showSelectedObjectsContextMenu(event) {
+        if (event.button === 2) {
+            view.hitTest(event).then(function (evt) {
+                if (evt?.results?.length) {
+                    let isSelected = false;
+                    for (const result of evt?.results) {
+                        if (result.type === 'graphic') {
+                            let layerName;
+                            Object.keys(layers).forEach(name => {
+                                if (layers[name].id === result.graphic.layer?.id) {
+                                    layer = layers[name];
+                                    layerName = name;
+                                }
+                            });
+                            const objectId = result.graphic.attributes.ObjectID;
+                            isSelected = layersInfo[layerName]?.selectedObjectIds.has(objectId);
+                            if (isSelected) {
+                                break;
+                            }
+                        }
+                    }
+                    if (isSelected) {
+                        let selectedObjectsCount = 0;
+                        Object.keys(layersInfo).forEach(layerName => {
+                            selectedObjectsCount += layersInfo[layerName]?.selectedObjectIds.size;
+                        });
+                        if (selectedObjectsCount >= 2) {
+                            showContextMenu(event, 'selectedObjectsOptionMenu');
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     function selectFeatures(geometry) {
         for (const layerName in layers) {
             const query = {
@@ -689,9 +728,8 @@ require([
                     return result.graphic.layer === sketchLayer;
                 });
                 if (results.length) {
-                    const graphic = results[0].graphic;
-                    selectedSketchGraphic = graphic;
-                    showSketchOptionsMenu(event, graphic);
+                    selectedSketchGraphic = results[0].graphic;
+                    showContextMenu(event, 'sketchOptionMenu');
                 }
             });
         }
@@ -747,7 +785,7 @@ require([
             return;
         }
         const objectId = graphic.attributes.ObjectID;
-        const highlight = layersInfo[layerName].selectedObjectIds.get(objectId);
+        const highlight = layersInfo[layerName].selectedObjectIds.get(objectId)?.highlight;
         if (highlight) {
             if (mode === 'toggle') {
                 highlight.remove();
@@ -755,7 +793,7 @@ require([
             }
         } else {
             view.whenLayerView(graphic.layer).then(function(layerView){
-                layersInfo[layerName].selectedObjectIds.set(objectId, layerView.highlight(graphic));
+                layersInfo[layerName].selectedObjectIds.set(objectId, {highlight: layerView.highlight(graphic), graphic: graphic});
             });
         }
     }
@@ -763,7 +801,7 @@ require([
     function clearSelection() {
         for (const layerName in layers) {
             for (const id of layersInfo[layerName].selectedObjectIds.keys()) {
-                layersInfo[layerName].selectedObjectIds.get(id).remove();
+                layersInfo[layerName].selectedObjectIds.get(id)?.highlight?.remove();
                 layersInfo[layerName].selectedObjectIds.delete(id);
             }
         }
@@ -1405,6 +1443,29 @@ function openLayerEditModal() {
     openModal(activeTocLayer + 'SymbologyModal');
 }
 
+function openSelectedObjectsModal() {
+    const table = document.getElementById('selectedObjectTable');
+    table.innerHTML = '';
+    for (const layerName in layersInfo) {
+        if (layersInfo[layerName].selectedObjectIds.size > 0) {
+            for (const selectedObject of layersInfo[layerName].selectedObjectIds.values()) {
+                const tr = document.createElement('tr');
+                const objectIdTd = document.createElement('td');
+                objectIdTd.innerHTML = selectedObject.graphic.attributes.ObjectID;
+                const nameTd = document.createElement('td');
+                nameTd.innerHTML = selectedObject.graphic.attributes.name;
+                const layerNameTd = document.createElement('td');
+                layerNameTd.innerHTML = selectedObject.graphic.layer.title;
+                tr.append(objectIdTd);
+                tr.append(nameTd);
+                tr.append(layerNameTd);
+                table.append(tr);
+            }
+        }
+    }
+    openModal('selectedObjectsModal');
+}
+
 function addLayerToTimeSlider() {
     if (!timeSliderLayers.includes(activeTocLayer)) {
         timeSliderLayers.push(activeTocLayer);
@@ -1574,11 +1635,11 @@ function dragElement(elmnt, draggable) {
     }
 }
 
-function showSketchOptionsMenu(event) {
+function showContextMenu(event, menuId) {
     event.preventDefault();
-    const menuContainer = document.getElementById('sketchOptionMenuContainer');
+    const menuContainer = document.getElementById(menuId + 'Container');
     menuContainer.style.display = 'block';
-    const menu = document.getElementById('sketchOptionMenu');
+    const menu = document.getElementById(menuId);
     menu.style.top = event.y - menu.offsetHeight + 'px';
     menu.style.left = event.x + 'px';
 }
