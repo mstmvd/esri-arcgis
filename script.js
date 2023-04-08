@@ -743,7 +743,7 @@ require([
                 layerName = name;
             }
         });
-        if (!layer) {
+        if (!layer || !layer.visible) {
             return;
         }
         const objectId = graphic.attributes.ObjectID;
