@@ -708,6 +708,8 @@ require([
                             break;
                         }
                     }
+                } else {
+                    clearSelection()
                 }
             });
         }
@@ -755,6 +757,15 @@ require([
             view.whenLayerView(graphic.layer).then(function(layerView){
                 layersInfo[layerName].selectedObjectIds.set(objectId, layerView.highlight(graphic));
             });
+        }
+    }
+
+    function clearSelection() {
+        for (const layerName in layers) {
+            for (const id of layersInfo[layerName].selectedObjectIds.keys()) {
+                layersInfo[layerName].selectedObjectIds.get(id).remove();
+                layersInfo[layerName].selectedObjectIds.delete(id);
+            }
         }
     }
 
