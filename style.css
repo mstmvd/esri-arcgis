@@ -30,6 +30,7 @@ body,
     padding: 6px;
     min-width: 200px;
     line-height: 2;
+    margin: 0;
 }
 
 .toc, ul {
@@ -134,7 +135,7 @@ body,
 
 .modal-content .symbol-setting {
     border-bottom: 1px dashed #ababab;
-    /*padding-bottom: 8px;*/
+    padding-bottom: 24px;
     margin: 8px 0;
     position: relative;
 }
@@ -190,6 +191,21 @@ body,
 
 .modal .form-field:last-child {
     margin-bottom: 0;
+}
+
+.modal .form-field input {
+    width: 100%;
+    margin-top: 8px;
+    line-height: 1.7;
+    box-sizing: border-box;
+}
+
+.modal .form-field select {
+    line-height: 1.7;
+    min-height: 32px;
+    width: 100%;
+    margin-top: 8px;
+    box-sizing: border-box;
 }
 
 .icon-list {
@@ -279,7 +295,7 @@ body,
     cursor: pointer;
 }
 
-.esri-time-slider__beginning, .esri-time-slider__end{
+.esri-time-slider__beginning, .esri-time-slider__end {
     width: 35px;
 }
 
@@ -344,4 +360,33 @@ body,
 
 #selectedObjectsModal table td, #selectedObjectsModal table th {
     border: 1px solid #000000;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+#addLayerBtn {
+    width: 200px;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.w-50 {
+    width: 50%;
+}
+
+#addFeatureFields {
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 16px;
+}
+
+.selectedObjectModalTable {
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

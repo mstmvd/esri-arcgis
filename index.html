@@ -20,6 +20,14 @@
             value="3D"
     />
 </div>
+<div id="addLayerDiv">
+    <input
+            class="no-border esri-component esri-widget--button esri-widget esri-interactive"
+            type="button"
+            id="addLayerBtn"
+            value="Add layer"
+    />
+</div>
 <ul id="toc" class="toc">
     <li>
         <span class="caret" onclick="toggleTOC(this)">Layers</span>
@@ -390,15 +398,41 @@
     </div>
 </div>
 <div id="selectedObjectsModal" class="modal" role="dialog">
-    <div class="modal-content">
+    <div class="modal-content" style="width: max-content">
         <div class="modal-header">
             <h3>Selected features</h3>
             <span class="close" onclick="closeModal('selectedObjectsModal')">&times;</span>
         </div>
-        <table cellpadding="8px" cellspacing="0">
-            <thead><tr><th>ObjectId</th><th>Name</th><th>Layer</th></tr></thead>
-            <tbody id="selectedObjectTable"></tbody>
-        </table>
+        <div class="selectedObjectModalTable">
+            <table cellpadding="8px" cellspacing="0">
+                <thead><tr><th>ObjectId</th><th>Layer</th><th>Attributes</th></tr></thead>
+                <tbody id="selectedObjectTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="addLayerModal" class="modal" role="dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add layer</h3>
+            <span class="close" onclick="closeModal('addLayerModal')">&times;</span>
+        </div>
+        <div class="form-field">
+            <label>
+                Add layer by:
+                <select id="addLayerBy" onchange="showAddLayerField(this.value)">
+                    <option value="url" selected>Url</option>
+                    <option value="portalItemId">Portal item id</option>
+                </select>
+            </label>
+        </div>
+        <div class="form-field" id="addLayerUrlField"><label>Url: <input type="text" id="addLayerUrl"></label></div>
+        <div class="form-field" style="display: none" id="addLayerPortalItemIdField"><label>Portal item id: <input type="text" id="addLayerPortalItemId"></label></div>
+        <hr>
+        <div class="modal-footer">
+            <button onclick="closeModal('addLayerModal')">Cancel</button>
+            <button onclick="addLayer()">Add</button>
+        </div>
     </div>
 </div>
 <div id="layerOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu()">

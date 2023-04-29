@@ -360,10 +360,12 @@ require([
     window.UniqueValueInfo = UniqueValueInfo;
     window.ClassBreakInfo = ClassBreakInfo;
     window.HeatmapColorStop = HeatmapColorStop;
+    window.FeatureLayer = FeatureLayer;
     globalSymbolUtils = symbolUtils;
     const sketchLayer = new GraphicsLayer();
     const tempSketchLayer = new GraphicsLayer();
     const switchButton = document.getElementById("switch-btn");
+    const addLayerButton = document.getElementById("addLayerBtn");
     const toc = document.getElementById('toc');
     let is3D = false;
     let sketchViewModel;
@@ -426,6 +428,12 @@ require([
         initView();
     });
 
+    addLayerButton.addEventListener("click", () => {
+        document.getElementById('addLayerUrl').value = '';
+        document.getElementById('addLayerPortalItemId').value = '';
+        openModal('addLayerModal');
+    });
+
     function initView() {
         let viewPoint;
         if (view?.viewpoint) {
@@ -470,7 +478,8 @@ require([
                 {component: sketch, index: 0, position: "top-left"},
                 {component: basemapGallery, index: 0, position: "top-right"},
                 {component: toc, index: 0, position: "bottom-left"},
-                {component: switchButton, index: 1, position: "top-left"},
+                {component: addLayerButton, index: 1, position: "top-left"},
+                {component: switchButton, index: 2, position: "top-left"},
                 {component: timeSlider, index: 0, position: "bottom-trailing"},
             ]);
         }).then(function () {
@@ -679,6 +688,7 @@ require([
                     for (const result of evt?.results) {
                         if (result.type === 'graphic') {
                             let layerName;
+                            let layer;
                             Object.keys(layers).forEach(name => {
                                 if (layers[name].id === result.graphic?.layer?.id) {
                                     layer = layers[name];
@@ -688,7 +698,7 @@ require([
                             if (!layerName) {
                                 continue;
                             }
-                            const objectId = result.graphic?.attributes?.ObjectID;
+                            const objectId = result.graphic?.attributes[layer.objectIdField];
                             if (!objectId) {
                                 continue;
                             }
@@ -792,7 +802,7 @@ require([
         if (!layer || !layer.visible) {
             return;
         }
-        const objectId = graphic.attributes.ObjectID;
+        const objectId = graphic.attributes[layer.objectIdField];
         const highlight = layersInfo[layerName].selectedObjectIds.get(objectId)?.highlight;
         if (highlight) {
             if (mode === 'toggle') {
@@ -839,7 +849,7 @@ function initTOC() {
                 height: 4
             }
         });
-        layersInfo[layerName].initialDefinitionExpression = layers[layerName].definitionExpression;
+        layersInfo[layerName].initialDefinitionExpression = layers[layerName].definitionExpression ?? '';
         setTimeout(() => updateLayerFeaturesCount(layerName), 0);
     }
 }
@@ -1475,14 +1485,14 @@ function openSelectedObjectsModal() {
             for (const selectedObject of layersInfo[layerName].selectedObjectIds.values()) {
                 const tr = document.createElement('tr');
                 const objectIdTd = document.createElement('td');
-                objectIdTd.innerHTML = selectedObject.graphic.attributes.ObjectID;
-                const nameTd = document.createElement('td');
-                nameTd.innerHTML = selectedObject.graphic.attributes.name;
+                objectIdTd.innerHTML = selectedObject.graphic.attributes[layers[layerName].objectIdField];
                 const layerNameTd = document.createElement('td');
                 layerNameTd.innerHTML = selectedObject.graphic.layer.title;
+                const attributeTd = document.createElement('td');
+                attributeTd.innerHTML = `<pre>${JSON.stringify(selectedObject.graphic.attributes, null, 2)}</pre>`;
                 tr.append(objectIdTd);
-                tr.append(nameTd);
                 tr.append(layerNameTd);
+                tr.append(attributeTd);
                 table.append(tr);
             }
         }
@@ -1499,6 +1509,7 @@ function confirmDeleteLayer() {
     setTimeout(() => {
         layers[activeTocLayer].destroy();
         delete layers[activeTocLayer];
+        delete layersInfo[activeTocLayer];
         initTOC();
     }, 1);
 }
@@ -1698,7 +1709,7 @@ function showAddFeatureToLayerModal() {
         validLayers.push(layer);
         const option = document.createElement('option');
         option.value = layer;
-        option.innerHTML = layer.toPascalCase();
+        option.innerHTML = layers[layer].title;
         select.append(option);
     }
     if (validLayers?.length > 0) {
@@ -1779,4 +1790,48 @@ function addToGraphicToLayer() {
     });
 
     closeModal('addFeatureToLayerModal');
+}
+
+function addLayer() {
+    let layer;
+    switch (document.getElementById('addLayerBy').value) {
+        case 'url':
+            const url = document.getElementById('addLayerUrl').value;
+            layer = new FeatureLayer({
+                url: url
+            });
+            break;
+        case 'portalItemId':
+            const portalItemId = document.getElementById('addLayerPortalItemId').value;
+            layer = new FeatureLayer({
+                portalItem: {
+                    id: portalItemId
+                }
+            });
+            break;
+    }
+    if (layer) {
+        layers[layer.id] = layer;
+        layersInfo[layer.id] = {
+            selectedObjectIds: new Map(),
+        };
+        layer.load().then(function() {
+            map.layers.add(layer);
+            initTOC();
+        });
+        closeModal('addLayerModal');
+    }
+}
+
+function showAddLayerField(type) {
+    switch (type) {
+        case 'url':
+            document.getElementById('addLayerUrlField').style.display = 'block';
+            document.getElementById('addLayerPortalItemIdField').style.display = 'none';
+            break;
+        case 'portalItemId':
+            document.getElementById('addLayerUrlField').style.display = 'none';
+            document.getElementById('addLayerPortalItemIdField').style.display = 'block';
+            break;
+    }
 }
