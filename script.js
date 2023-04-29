@@ -4,11 +4,7 @@ const initialZoom = 17;//Initial zoom level of map
 
 let view;
 
-const layers = {
-    pointLayer: {},
-    polylineLayer: {},
-    polygonLayer: {},
-};
+const layers = {};
 
 const defaultSymbols = {
     pointLayer: {
@@ -36,6 +32,7 @@ const defaultSymbols = {
 
 const layersInfo = {
     pointLayer: {
+        title: 'Point layer',
         renderers: {
             simple: {
                 symbol: defaultSymbols.pointLayer
@@ -127,6 +124,7 @@ const layersInfo = {
         }
     },
     polylineLayer: {
+        title: 'Polyline layer',
         renderers: {
             simple: {
                 symbol: defaultSymbols.polylineLayer
@@ -188,6 +186,7 @@ const layersInfo = {
         },
     },
     polygonLayer: {
+        title: 'Polygon layer',
         renderers: {
             simple: {
                 symbol: defaultSymbols.polygonLayer
@@ -499,6 +498,7 @@ require([
 
     //Define layers
     layers.pointLayer = new FeatureLayer({
+        id: 'pointLayer',
         title: 'Point layer',
         source: pointsData.map(function (place) {
             return new Graphic({
@@ -559,6 +559,7 @@ require([
         outFields: ["*"],
     });
     layers.polylineLayer = new FeatureLayer({
+        id: 'polylineLayer',
         title: 'Polyline layer',
         source: polylineData.map(function (line) {
             return new Graphic({
@@ -613,6 +614,7 @@ require([
         popupTemplate: layersInfo.polylineLayer.template,
     });
     layers.polygonLayer = new FeatureLayer({
+        id: 'polygonLayer',
         title: 'Polygon layer',
         source: polygonData.map(function (polygon) {
             return new Graphic({
@@ -678,12 +680,18 @@ require([
                         if (result.type === 'graphic') {
                             let layerName;
                             Object.keys(layers).forEach(name => {
-                                if (layers[name].id === result.graphic.layer?.id) {
+                                if (layers[name].id === result.graphic?.layer?.id) {
                                     layer = layers[name];
                                     layerName = name;
                                 }
                             });
-                            const objectId = result.graphic.attributes.ObjectID;
+                            if (!layerName) {
+                                continue;
+                            }
+                            const objectId = result.graphic?.attributes?.ObjectID;
+                            if (!objectId) {
+                                continue;
+                            }
                             isSelected = layersInfo[layerName]?.selectedObjectIds.has(objectId);
                             if (isSelected) {
                                 break;
@@ -792,8 +800,11 @@ require([
                 layersInfo[layerName].selectedObjectIds.delete(objectId);
             }
         } else {
-            view.whenLayerView(graphic.layer).then(function(layerView){
-                layersInfo[layerName].selectedObjectIds.set(objectId, {highlight: layerView.highlight(graphic), graphic: graphic});
+            view.whenLayerView(graphic.layer).then(function (layerView) {
+                layersInfo[layerName].selectedObjectIds.set(objectId, {
+                    highlight: layerView.highlight(graphic),
+                    graphic: graphic
+                });
             });
         }
     }
@@ -807,8 +818,21 @@ require([
         }
     }
 
+    initTOC();
+});
+
+function initTOC() {
+    const tocLayers = document.getElementById('layers');
+    tocLayers.innerHTML = '';
     for (const layerName in layers) {
-        symbolUtils.renderPreviewHTML(getLayerSymbol(layers[layerName]), {
+        tocLayers.insertAdjacentHTML('beforeend', `
+            <li id="${layerName}" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, '${layerName}')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
+                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer(event, '${layerName}')">
+                <div class="symbology" id="${layerName}SymbologyIcon"></div>
+                <div class="layer-title">${layers[layerName].title}<span id="${layerName}FeaturesCount"></span></div>
+            </li>`);
+
+        globalSymbolUtils.renderPreviewHTML(getLayerSymbol(layers[layerName]), {
             node: document.getElementById(layerName + 'SymbologyIcon'),
             size: {
                 width: 24,
@@ -816,9 +840,9 @@ require([
             }
         });
         layersInfo[layerName].initialDefinitionExpression = layers[layerName].definitionExpression;
-        updateLayerFeaturesCount(layerName);
+        setTimeout(() => updateLayerFeaturesCount(layerName), 0);
     }
-});
+}
 
 function timeSliderToBeginning() {
     const start = new Date(timeSlider.fullTimeExtent.start.getTime());
@@ -1466,6 +1490,19 @@ function openSelectedObjectsModal() {
     openModal('selectedObjectsModal');
 }
 
+function confirmDeleteLayer() {
+    const result = confirm('Are you sure to delete layer?');
+    if (!result) {
+        return;
+    }
+    removeLayerFromTimeSlider(activeTocLayer);
+    setTimeout(() => {
+        layers[activeTocLayer].destroy();
+        delete layers[activeTocLayer];
+        initTOC();
+    }, 1);
+}
+
 function addLayerToTimeSlider() {
     if (!timeSliderLayers.includes(activeTocLayer)) {
         timeSliderLayers.push(activeTocLayer);
@@ -1487,6 +1524,9 @@ function toggleTimeSliderCheckedLayer(layerName) {
 }
 
 function removeLayerFromTimeSlider(layerName) {
+    if (!timeSliderLayers.includes(layerName)) {
+        return;
+    }
     timeSliderLayers.splice(timeSliderLayers.indexOf(layerName), 1);
     timeSliderCheckedLayers.splice(timeSliderCheckedLayers.indexOf(layerName), 1);
     document.getElementById(layerName + 'TimeSliderLayer').remove();
@@ -1542,7 +1582,10 @@ function updateLayerFeaturesCount(layerName) {
     layers[layerName]
         .queryFeatures(layers[layerName].createQuery())
         .then((result) => {
-                document.getElementById(layerName + 'FeaturesCount').innerHTML = ' (' + result.features.length + ')';
+                const featuresCountPlaceholder = document.getElementById(layerName + 'FeaturesCount');
+                if (featuresCountPlaceholder) {
+                    featuresCountPlaceholder.innerHTML = ' (' + result.features.length + ')';
+                }
             }
         );
 }

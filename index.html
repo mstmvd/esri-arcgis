@@ -23,23 +23,7 @@
 <ul id="toc" class="toc">
     <li>
         <span class="caret" onclick="toggleTOC(this)">Layers</span>
-        <ul class="nested" id="layers">
-            <li id="pointLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'pointLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
-                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer(event, 'pointLayer')">
-                <div class="symbology" id="pointLayerSymbologyIcon"></div>
-                <div class="layer-title">Point Layer<span id="pointLayerFeaturesCount"></span></div>
-            </li>
-            <li id="polylineLayer" class="layer-name" oncontextmenu="showLayerOptionsMenu(event, 'polylineLayer')" draggable="true" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
-                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer(event, 'polylineLayer')">
-                <div class="symbology" id="polylineLayerSymbologyIcon"></div>
-                <div class="layer-title">Polyline Layer<span id="polylineLayerFeaturesCount"></span></div>
-            </li>
-            <li id="polygonLayer" class="layer-name" draggable="true" oncontextmenu="showLayerOptionsMenu(event, 'polygonLayer')" ondragstart="dragStart(this, event)" ondragover="dragOver(this, event)" ondragenter="dragEnter(this, event)" ondragleave="dragLeave(this, event)" ondrop="dropped(this, event)">
-                <input type="checkbox" class="checkbox" checked="checked" onchange="toggleLayer(event, 'polygonLayer')">
-                <div class="symbology" id="polygonLayerSymbologyIcon"></div>
-                <div class="layer-title">Polygon Layer<span id="polygonLayerFeaturesCount"></span></div>
-            </li>
-        </ul>
+        <ul class="nested" id="layers"></ul>
     </li>
 </ul>
 <div id="timeSliderDiv"></div>
@@ -423,6 +407,7 @@
         <button onclick="openLayerEditModal()">Edit</button>
         <button onclick="openLayerOptionModal()">Set label</button>
         <button onclick="addLayerToTimeSlider()">Add to Time Slider</button>
+        <button onclick="confirmDeleteLayer()">Delete</button>
     </div>
 </div>
 <div id="sketchOptionMenuContainer" class="layer-option-menu-container" onclick="dismissMenu('sketchOptionMenuContainer')">
