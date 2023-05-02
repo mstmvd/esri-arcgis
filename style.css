@@ -3,9 +3,35 @@ body,
 #viewDiv {
     padding: 0;
     margin: 0;
-    height: 100%;
+    height: 100vh;
+    max-height: 100vh;
     width: 100%;
     position: relative;
+    overflow: hidden;
+}
+
+#viewDiv {
+    transition: 0.2s ease all;
+}
+
+#featureTables {
+    margin: 0;
+    height: 0;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
+    transition: 0.2s ease all;
+    overflow: auto;
+}
+
+.h70 {
+    height: 70vh !important;
+    max-height: 70vh !important;
+}
+
+.h30 {
+    height: 30vh !important;
+    max-height: 30vh !important;
 }
 
 .layer-button {
@@ -389,4 +415,81 @@ body,
     max-height: 60vh;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.feature-tables-tabs {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+}
+
+.feature-table-tab {
+    background-color: #eeeeee;
+    border: 1px solid #eeeeee;
+    border-bottom: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 8px 24px 8px 8px;
+}
+
+.feature-table-tab-active {
+    background-color: #bababa;
+    border: 1px solid #888888;
+    border-bottom: 1px solid #ffffff;
+    cursor: initial;
+}
+
+.feature-table-tab-close {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #666666;
+    transition: 0.2s ease all;
+}
+
+.feature-table-tab-close:hover {
+    color: #222222;
+    transition: 0.2s ease all;
+}
+
+.feature-table-container {
+    display: none;
+    margin-top: -1px;
+}
+
+.feature-table-container-active {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.feature-table-container table, .feature-table-container tr, .feature-table-container td, .feature-table-container th {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 8px;
+}
+
+.feature-table-container table {
+    width: 100%;
+}
+
+.feature-table-container table thead tr th:first-child,
+.feature-table-container table tbody tr td:first-child {
+    width: 24px;
+    min-width: 24px;
+    max-width: 24px;
 }

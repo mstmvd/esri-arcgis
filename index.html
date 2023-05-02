@@ -12,6 +12,10 @@
 </head>
 <body dir="ltr">
 <div id="viewDiv"></div>
+<div id="featureTables">
+    <div class="feature-tables-tabs" id="featureTablesTabs"></div>
+    <div class="feature-tables-container" id="featureTablesContainer"></div>
+</div>
 <div id="infoDiv">
     <input
             class="no-border esri-component esri-widget--button esri-widget esri-interactive"
@@ -441,6 +445,7 @@
         <button onclick="openLayerEditModal()">Edit</button>
         <button onclick="openLayerOptionModal()">Set label</button>
         <button onclick="addLayerToTimeSlider()">Add to Time Slider</button>
+        <button onclick="showAttributeTable()">Show attribute table</button>
         <button onclick="confirmDeleteLayer()">Delete</button>
     </div>
 </div>

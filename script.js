@@ -346,6 +346,8 @@ let timeSliderPlayRateIndex = 1;
 let selectedSketchGraphic;
 const supportedFeatureFieldTypes = ['small-integer', 'integer', 'single', 'double', 'long', 'date', 'string'];
 
+let isAttributeTablesShow = false;
+
 require([
     "esri/Map",
     "esri/views/MapView",
@@ -805,46 +807,49 @@ require([
         }
     }
 
-    function selectGraphic(graphic, mode = 'add') {
-        let layer;
-        let layerName;
-        Object.keys(layers).forEach(name => {
-            if (layers[name].id === graphic.layer?.id) {
-                layer = layers[name];
-                layerName = name;
-            }
-        });
-        if (!layer || !layer.visible) {
-            return;
-        }
-        const objectId = graphic.attributes[layer.objectIdField];
-        const highlight = layersInfo[layerName].selectedObjectIds.get(objectId)?.highlight;
-        if (highlight) {
-            if (mode === 'toggle') {
-                highlight.remove();
-                layersInfo[layerName].selectedObjectIds.delete(objectId);
-            }
-        } else {
-            view.whenLayerView(graphic.layer).then(function (layerView) {
-                layersInfo[layerName].selectedObjectIds.set(objectId, {
-                    highlight: layerView.highlight(graphic),
-                    graphic: graphic
-                });
-            });
-        }
-    }
-
     function clearSelection() {
         for (const layerName in layers) {
             for (const id of layersInfo[layerName].selectedObjectIds.keys()) {
                 layersInfo[layerName].selectedObjectIds.get(id)?.highlight?.remove();
                 layersInfo[layerName].selectedObjectIds.delete(id);
+                document.getElementById(`${layerName}_${id}_FeatureTableCheckbox`)?.removeAttribute('checked');
             }
         }
     }
 
     initTOC();
 });
+
+function selectGraphic(graphic, mode = 'add') {
+    let layer;
+    let layerName;
+    Object.keys(layers).forEach(name => {
+        if (layers[name].id === graphic.layer?.id) {
+            layer = layers[name];
+            layerName = name;
+        }
+    });
+    if (!layer || !layer.visible) {
+        return;
+    }
+    const objectId = graphic.attributes[layer.objectIdField];
+    const highlight = layersInfo[layerName].selectedObjectIds.get(objectId)?.highlight;
+    if (highlight) {
+        if (mode === 'toggle') {
+            highlight.remove();
+            layersInfo[layerName].selectedObjectIds.delete(objectId);
+            document.getElementById(`${layer.id}_${objectId}_FeatureTableCheckbox`)?.removeAttribute('checked');
+        }
+    } else {
+        view.whenLayerView(graphic.layer).then(function (layerView) {
+            layersInfo[layerName].selectedObjectIds.set(objectId, {
+                highlight: layerView.highlight(graphic),
+                graphic: graphic
+            });
+            document.getElementById(`${layer.id}_${objectId}_FeatureTableCheckbox`)?.setAttribute('checked', 'checked');
+        });
+    }
+}
 
 function initTOC() {
     const tocLayers = document.getElementById('layers');
@@ -1874,5 +1879,167 @@ function showAddLayerField(type) {
             document.getElementById('addLayerUrlField').style.display = 'none';
             document.getElementById('addLayerPortalItemIdField').style.display = 'block';
             break;
+    }
+}
+
+function showAttributeTable() {
+    if (!isAttributeTablesShow) {
+        isAttributeTablesShow = true;
+        document.getElementById('viewDiv').classList.add('h70');
+        document.getElementById('featureTables').classList.add('h30');
+    }
+    const layer = layers[activeTocLayer];
+    createFeatureTable(layer);
+}
+
+function createFeatureTable(layer) {
+    const tableId = layer.id + 'FeatureTableContainer';
+    const tablesContainer = document.getElementById('featureTablesContainer');
+    const container = document.createElement('div');
+    container.classList.add('feature-table-container');
+    container.setAttribute('id', tableId);
+
+    const table = document.createElement('table');
+    const tHead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    headRow.append(document.createElement('th'));
+    for (const field of layer.fields) {
+        const th = document.createElement('th');
+        th.classList.add('cur-pointer');
+        th.onclick = () => {
+            sortTable(table, layer.fields.indexOf(field) + 1);
+        }
+        th.innerHTML = field.name;
+        headRow.append(th);
+    }
+    tHead.append(headRow);
+    table.append(tHead);
+    const tBody = document.createElement('tbody');
+    for (const item of layer.source.items) {
+        const row = document.createElement('tr');
+        row.classList.add('cur-pointer');
+        row.ondblclick = () => {
+            view.goTo(item);
+        };
+        const checkBoxTd = document.createElement('td');
+        const checkBox = document.createElement('input');
+        const objectId = item.attributes[layer.objectIdField];
+        checkBox.setAttribute('id', `${layer.id}_${objectId}_FeatureTableCheckbox`);
+        checkBox.setAttribute('type', 'checkbox');
+        const highlight = layersInfo[layer.id].selectedObjectIds.get(objectId)?.highlight;
+        if (highlight) {
+            checkBox.setAttribute('checked', 'checked');
+        }
+        checkBox.onclick = () => {
+            selectGraphic(item, 'toggle');
+        };
+        checkBoxTd.append(checkBox);
+        row.append(checkBoxTd);
+        for (const attributeKey in item.attributes) {
+            const td = document.createElement('td');
+            td.innerHTML = item.attributes[attributeKey];
+            row.append(td);
+        }
+        tBody.append(row);
+    }
+    table.append(tBody);
+    container.append(table);
+    tablesContainer.append(container);
+    createFeatureTableTab(layer);
+}
+
+function createFeatureTableTab(layer) {
+    const tabId = layer.id + 'FeatureTableTab';
+    if (document.getElementById(tabId)) {
+        activateFeatureTableTab(layer);
+        return;
+    }
+    const tabs = document.getElementById('featureTablesTabs');
+    const tab = document.createElement('div');
+    tab.classList.add('feature-table-tab');
+    tab.dataset.layerId = layer.id;
+    tab.onclick = (event) => {
+        activateFeatureTableTab(layer);
+    };
+
+    tab.setAttribute('id', tabId);
+    const closeButton = document.createElement('span');
+    closeButton.innerHTML = '&times;'
+    closeButton.classList.add('feature-table-tab-close');
+    closeButton.onclick = (event) => {
+        event.stopPropagation();
+        document.getElementById(tabId)?.remove();
+        document.getElementById(layer.id + 'FeatureTableContainer')?.remove();
+    }
+    tab.append(closeButton);
+    const title = document.createElement('div');
+    title.innerHTML = layer.title;
+    tab.append(title);
+    tabs.append(tab);
+    activateFeatureTableTab(layer);
+}
+
+function activateFeatureTableTab(layer) {
+    document.getElementsByClassName('feature-table-tab-active')?.item(0)?.classList.remove('feature-table-tab-active');
+    document.getElementsByClassName('feature-table-container-active')?.item(0)?.classList.remove('feature-table-container-active');
+    const tabId = layer.id + 'FeatureTableTab';
+    const tableId = layer.id + 'FeatureTableContainer';
+    const tab = document.getElementById(tabId);
+    const table = document.getElementById(tableId);
+    tab.classList.add('feature-table-tab-active');
+    table.classList.add('feature-table-container-active');
+}
+
+function sortTable(table, n) {
+    var rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    switching = true;
+    //Set the sorting direction to ascending:
+    dir = "asc";
+    /*Make a loop that will continue until
+    no switching has been done:*/
+    while (switching) {
+        //start by saying: no switching is done:
+        switching = false;
+        rows = table.rows;
+        /*Loop through all table rows (except the
+        first, which contains table headers):*/
+        for (i = 1; i < (rows.length - 1); i++) {
+            //start by saying there should be no switching:
+            shouldSwitch = false;
+            /*Get the two elements you want to compare,
+            one from current row and one from the next:*/
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+            /*check if the two rows should switch place,
+            based on the direction, asc or desc:*/
+            if (dir === "asc") {
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    //if so, mark as a switch and break the loop:
+                    shouldSwitch= true;
+                    break;
+                }
+            } else if (dir === "desc") {
+                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                    //if so, mark as a switch and break the loop:
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            /*If a switch has been marked, make the switch
+            and mark that a switch has been done:*/
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            //Each time a switch is done, increase this count by 1:
+            switchcount ++;
+        } else {
+            /*If no switching has been done AND the direction is "asc",
+            set the direction to "desc" and run the while loop again.*/
+            if (switchcount === 0 && dir === "asc") {
+                dir = "desc";
+                switching = true;
+            }
+        }
     }
 }
