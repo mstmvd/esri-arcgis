@@ -1137,9 +1137,9 @@ function saveSymbology(layerName) {
             layers[activeTocLayer].renderer = layersInfo[activeTocLayer].renderers[activeModalTab];
             break;
     }
-    document.getElementById(layerName + 'SymbologyIcon').innerHTML = ''
-    globalSymbolUtils.renderPreviewHTML(getLayerSymbol(layers[layerName]), {
-        node: document.getElementById(layerName + 'SymbologyIcon'),
+    document.getElementById(activeTocLayer + 'SymbologyIcon').innerHTML = ''
+    globalSymbolUtils.renderPreviewHTML(getLayerSymbol(layers[activeTocLayer]), {
+        node: document.getElementById(activeTocLayer + 'SymbologyIcon'),
         size: {
             width: 24,
             height: 4
