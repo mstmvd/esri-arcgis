@@ -985,7 +985,7 @@ function saveSymbology(layerName) {
                     case 'simple':
                         if (!layersInfo[activeTocLayer].renderers.simple.symbol.font) {
                             layersInfo[activeTocLayer].renderers.simple.symbol.font = {
-                                    family: "CalciteWebCoreIcons",
+                                family: "CalciteWebCoreIcons",
                             }
                         }
                         layersInfo[activeTocLayer].renderers.simple.symbol.font.size = document.getElementById(layerName + rendererType + 'PointSize_0').value;
@@ -1849,7 +1849,7 @@ function addLayer() {
     }
     if (layer) {
         layers[layer.id] = layer;
-        layer.load().then(function() {
+        layer.load().then(function () {
             map.layers.add(layer);
             initLayerInfo(layer);
             initTOC();
@@ -1915,33 +1915,38 @@ function createFeatureTable(layer) {
     tHead.append(headRow);
     table.append(tHead);
     const tBody = document.createElement('tbody');
-    for (const item of layer.source.items) {
-        const row = document.createElement('tr');
-        row.classList.add('cur-pointer');
-        row.ondblclick = () => {
-            view.goTo(item);
-        };
-        const checkBoxTd = document.createElement('td');
-        const checkBox = document.createElement('input');
-        const objectId = item.attributes[layer.objectIdField];
-        checkBox.setAttribute('id', `${layer.id}_${objectId}_FeatureTableCheckbox`);
-        checkBox.setAttribute('type', 'checkbox');
-        const highlight = layersInfo[layer.id].selectedObjectIds.get(objectId)?.highlight;
-        if (highlight) {
-            checkBox.setAttribute('checked', 'checked');
-        }
-        checkBox.onclick = () => {
-            selectGraphic(item, 'toggle');
-        };
-        checkBoxTd.append(checkBox);
-        row.append(checkBoxTd);
-        for (const attributeKey in item.attributes) {
-            const td = document.createElement('td');
-            td.innerHTML = item.attributes[attributeKey];
-            row.append(td);
-        }
-        tBody.append(row);
-    }
+    layer
+        .queryFeatures(layer.createQuery())
+        .then((result) => {
+                for (const item of result.features) {
+                    const row = document.createElement('tr');
+                    row.classList.add('cur-pointer');
+                    row.ondblclick = () => {
+                        view.goTo(item);
+                    };
+                    const checkBoxTd = document.createElement('td');
+                    const checkBox = document.createElement('input');
+                    const objectId = item.attributes[layer.objectIdField];
+                    checkBox.setAttribute('id', `${layer.id}_${objectId}_FeatureTableCheckbox`);
+                    checkBox.setAttribute('type', 'checkbox');
+                    const highlight = layersInfo[layer.id].selectedObjectIds.get(objectId)?.highlight;
+                    if (highlight) {
+                        checkBox.setAttribute('checked', 'checked');
+                    }
+                    checkBox.onclick = () => {
+                        selectGraphic(item, 'toggle');
+                    };
+                    checkBoxTd.append(checkBox);
+                    row.append(checkBoxTd);
+                    for (const attributeKey in item.attributes) {
+                        const td = document.createElement('td');
+                        td.innerHTML = item.attributes[attributeKey];
+                        row.append(td);
+                    }
+                    tBody.append(row);
+                }
+            }
+        );
     table.append(tBody);
     container.append(table);
     tablesContainer.append(container);
@@ -2015,7 +2020,7 @@ function sortTable(table, n) {
             if (dir === "asc") {
                 if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
                     //if so, mark as a switch and break the loop:
-                    shouldSwitch= true;
+                    shouldSwitch = true;
                     break;
                 }
             } else if (dir === "desc") {
@@ -2032,7 +2037,7 @@ function sortTable(table, n) {
             rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
             switching = true;
             //Each time a switch is done, increase this count by 1:
-            switchcount ++;
+            switchcount++;
         } else {
             /*If no switching has been done AND the direction is "asc",
             set the direction to "desc" and run the while loop again.*/
