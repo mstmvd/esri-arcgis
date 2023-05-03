@@ -1892,6 +1892,12 @@ function showAttributeTable() {
     createFeatureTable(layer);
 }
 
+function hideAttributeTable() {
+    isAttributeTablesShow = false;
+    document.getElementById('viewDiv').classList.remove('h70');
+    document.getElementById('featureTables').classList.remove('h30');
+}
+
 function createFeatureTable(layer) {
     const tableId = layer.id + 'FeatureTableContainer';
     const tablesContainer = document.getElementById('featureTablesContainer');
@@ -1953,6 +1959,8 @@ function createFeatureTable(layer) {
     createFeatureTableTab(layer);
 }
 
+const shownFeatureTableLayers = [];
+
 function createFeatureTableTab(layer) {
     const tabId = layer.id + 'FeatureTableTab';
     if (document.getElementById(tabId)) {
@@ -1975,6 +1983,10 @@ function createFeatureTableTab(layer) {
         event.stopPropagation();
         document.getElementById(tabId)?.remove();
         document.getElementById(layer.id + 'FeatureTableContainer')?.remove();
+        shownFeatureTableLayers.splice(shownFeatureTableLayers.indexOf(layer.id), 1);
+        if (shownFeatureTableLayers.length === 0) {
+            hideAttributeTable();
+        }
     }
     tab.append(closeButton);
     const title = document.createElement('div');
@@ -1982,6 +1994,7 @@ function createFeatureTableTab(layer) {
     tab.append(title);
     tabs.append(tab);
     activateFeatureTableTab(layer);
+    shownFeatureTableLayers.push(layer.id)
 }
 
 function activateFeatureTableTab(layer) {

@@ -468,13 +468,14 @@ body,
 .feature-table-container {
     display: none;
     margin-top: -1px;
+    height: calc(30vh - 36px);
+    overflow-y: auto;
 }
 
 .feature-table-container-active {
     display: block;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
+    /*width: 100%;*/
+    /*height: 100%;*/
 }
 
 .feature-table-container table, .feature-table-container tr, .feature-table-container td, .feature-table-container th {
@@ -492,4 +493,10 @@ body,
     width: 24px;
     min-width: 24px;
     max-width: 24px;
+}
+
+.feature-table-container table thead {
+    position: sticky;
+    top: 0;
+    background-color: #efefef;
 }
