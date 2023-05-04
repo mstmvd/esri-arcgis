@@ -344,7 +344,7 @@ const timeSliderPlayRates = [
 ]
 let timeSliderPlayRateIndex = 1;
 let selectedSketchGraphic;
-const supportedFeatureFieldTypes = ['small-integer', 'integer', 'single', 'double', 'long', 'date', 'string'];
+const supportedFeatureFieldTypes = ['small-integer', 'integer', 'single', 'double', 'long', 'date', 'string', 'oid'];
 
 let isAttributeTablesShow = false;
 
@@ -1770,6 +1770,8 @@ function addFeatureCreateFields(layerName) {
         if (supportedFeatureFieldTypes.includes(layerField.type)) {
             let inputType = 'text';
             switch (layerField.type) {
+                case 'oid':
+                    continue;
                 case 'small-integer':
                 case 'integer':
                 case 'single':
@@ -1945,6 +1947,9 @@ function generateFeatureTable(layer) {
         th.innerHTML = field.name;
         headRow.append(th);
     }
+    const thAction = document.createElement('th');
+    thAction.innerHTML = 'Action';
+    headRow.append(thAction);
     tHead.append(headRow);
     table.append(tHead);
     const tBody = document.createElement('tbody');
@@ -1971,17 +1976,117 @@ function generateFeatureTable(layer) {
                     };
                     checkBoxTd.append(checkBox);
                     row.append(checkBoxTd);
+                    let i = 0;
                     for (const attributeKey in item.attributes) {
                         const td = document.createElement('td');
-                        td.innerHTML = item.attributes[attributeKey];
+                        let val = item.attributes[attributeKey];
+                        if (layer.fields[i].type === 'date') {
+                            val = new Date(val).toISOString().substring(0, 10);
+                        }
+                        td.innerHTML = val;
                         row.append(td);
+                        i++;
                     }
+                    const action = document.createElement('td');
+                    action.classList.add('text-align-center');
+                    const editButton = document.createElement('button');
+                    editButton.type = 'button';
+                    editButton.innerHTML = 'Edit';
+                    editButton.onclick = () => {
+                        showEditFeatureModal(layer, item);
+                    };
+                    action.append(editButton);
+                    row.append(action);
                     tBody.append(row);
                 }
             }
         );
     table.append(tBody);
     return table;
+}
+
+function showEditFeatureModal(layer, item) {
+    const objectId = item.attributes[layer.objectIdField];
+    editFeatureCreateFields(layer, item);
+    openModal('editFeatureModal');
+}
+
+function editFeatureCreateFields(layer, item) {
+    const fieldsContainer = document.getElementById('editFeatureFields');
+    fieldsContainer.innerHTML = '';
+    fieldsContainer.insertAdjacentHTML('beforeend', `<input type="hidden" id="editFeatureLayerId" value="${layer.id}" />`)
+    for (const layerField of layer.fields) {
+        if (supportedFeatureFieldTypes.includes(layerField.type)) {
+            let inputType = 'text';
+            let value = item.attributes[layerField.name];
+            switch (layerField.type) {
+                case 'oid':
+                    inputType = 'hidden';
+                    break;
+                case 'small-integer':
+                case 'integer':
+                case 'single':
+                case 'double':
+                case 'long':
+                    inputType = 'number';
+                    break;
+                case 'date':
+                    inputType = 'date';
+                    if (value) {
+                        value = (new Date(value)).toISOString().substr(0, 10);
+                    }
+                    break;
+
+            }
+            fieldsContainer.insertAdjacentHTML('beforeend', ` <div class="form-field"> <label> ${layerField.name.ucFirst()}: <input id="editFeatureField_${layerField.name}" type="${inputType}" value="${value}" required /> </label> </div> `);
+        }
+    }
+}
+
+function editFeature() {
+    const layerName = document.getElementById('editFeatureLayerId').value;
+    const featureAttributes = {};
+    let time;
+    for (const layerField of layers[layerName].fields) {
+        if (supportedFeatureFieldTypes.includes(layerField.type)) {
+            let value = document.getElementById(`editFeatureField_${layerField.name}`).value;
+            if (!value) {
+                alert('Please fill all the fields');
+                return;
+            }
+            if (layerField.type === 'date') {
+                value = new Date(value).getTime();
+                if (layerField.name === 'time') {
+                    time = value;
+                }
+            }
+            if (layerField.type === 'oid') {
+                value = Number.parseInt(value);
+            }
+            featureAttributes[layerField.name] = value;
+        }
+    }
+    layers[layerName].applyEdits({
+            updateFeatures: [
+                {
+                    attributes: featureAttributes,
+                }
+            ]
+        }
+    ).then(() => {
+        if (time) {
+            if (layers[layerName].fullTimeExtent && time > layers[layerName].fullTimeExtent.end) {
+                layers[layerName].fullTimeExtent.end = time + 31556926000;//add one year to time extent for better result on timeSlider
+            }
+            if (layers[layerName].fullTimeExtent && time < layers[layerName].fullTimeExtent.start) {
+                layers[layerName].fullTimeExtent.start = time - 31556926000;//subtract one year from time extent for better result on timeSlider
+            }
+        }
+        updateLayerFeaturesCount(layerName);
+        calcTimeSliderTimeExtent();
+    });
+
+    closeModal('editFeatureModal');
 }
 
 const shownFeatureTableLayers = [];

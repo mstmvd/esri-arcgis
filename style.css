@@ -500,3 +500,7 @@ body,
     top: 0;
     background-color: #efefef;
 }
+
+.text-align-center {
+    text-align: center;
+}
