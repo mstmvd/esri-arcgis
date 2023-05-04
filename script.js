@@ -1920,11 +1920,13 @@ function createFeatureTable(layer) {
 }
 
 function recreateFeatureTable(layer) {
-    const tableContainerId = layer.id + 'FeatureTableContainer';
-    const table = generateFeatureTable(layer);
-    const container = document.getElementById(tableContainerId);
-    container.innerHTML = '';
-    container.append(table);
+    if (shownFeatureTableLayers.includes(layer.id)) {
+        const tableContainerId = layer.id + 'FeatureTableContainer';
+        const container = document.getElementById(tableContainerId);
+        const table = generateFeatureTable(layer);
+        container.innerHTML = '';
+        container.append(table);
+    }
 }
 
 function generateFeatureTable(layer) {
