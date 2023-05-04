@@ -697,6 +697,12 @@ require([
 
     map.layers.addMany([layers.polygonLayer, layers.polylineLayer, layers.pointLayer, sketchLayer]);
 
+    for (const layerId in layers) {
+        layers[layerId].on("edits", function (event) {
+            recreateFeatureTable(layers[layerId]);
+        });
+    }
+
     function showSelectedObjectsContextMenu(event) {
         if (event.button === 2) {
             view.hitTest(event).then(function (evt) {
@@ -1854,6 +1860,9 @@ function addLayer() {
             initLayerInfo(layer);
             initTOC();
         });
+        layer.on("edits", function (event) {
+            recreateFeatureTable(layer);
+        });
         closeModal('addLayerModal');
     }
 }
@@ -1904,8 +1913,24 @@ function createFeatureTable(layer) {
     const container = document.createElement('div');
     container.classList.add('feature-table-container');
     container.setAttribute('id', tableId);
+    const table = generateFeatureTable(layer);
+    container.append(table);
+    tablesContainer.append(container);
+    createFeatureTableTab(layer);
+}
 
+function recreateFeatureTable(layer) {
+    const tableContainerId = layer.id + 'FeatureTableContainer';
+    const table = generateFeatureTable(layer);
+    const container = document.getElementById(tableContainerId);
+    container.innerHTML = '';
+    container.append(table);
+}
+
+function generateFeatureTable(layer) {
+    const tableId = layer.id + 'FeatureTableContainerTable';
     const table = document.createElement('table');
+    table.setAttribute('id', tableId)
     const tHead = document.createElement('thead');
     const headRow = document.createElement('tr');
     headRow.append(document.createElement('th'));
@@ -1954,9 +1979,7 @@ function createFeatureTable(layer) {
             }
         );
     table.append(tBody);
-    container.append(table);
-    tablesContainer.append(container);
-    createFeatureTableTab(layer);
+    return table;
 }
 
 const shownFeatureTableLayers = [];
