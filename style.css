@@ -481,7 +481,7 @@ body,
 .feature-table-container table, .feature-table-container tr, .feature-table-container td, .feature-table-container th {
     border: 1px solid black;
     border-collapse: collapse;
-    padding: 8px;
+    padding: 8px 20px 8px 8px;
 }
 
 .feature-table-container table {
@@ -503,4 +503,17 @@ body,
 
 .text-align-center {
     text-align: center;
+}
+
+.feature-table-container table thead tr th {
+    position: relative;
+}
+
+.feature-table-container table thead tr th .filter {
+    position: absolute;
+    right: 8px;
+}
+
+.feature-table-container table thead tr th .active-filter {
+    color: blue;
 }

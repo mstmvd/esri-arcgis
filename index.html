@@ -473,5 +473,26 @@
         <button onclick="openSelectedObjectsModal()">Show all marked features</button>
     </div>
 </div>
+<div id="filterAttributeMenuContainer" class="layer-option-menu-container" onclick="dismissMenu('filterAttributeMenuContainer')">
+    <div id="filterAttributeMenu" class="layer-option-menu" style="width: max-content" onclick="event.stopPropagation()">
+        <input type="hidden" id="filterAttributeLayerId"/>
+        <input type="hidden" id="filterAttributeFieldName"/>
+        <input type="hidden" id="filterAttributeFieldType"/>
+        <div style="margin-bottom: 8px; display: flex; align-items: center;">
+            <div id="filterAttributeName" style="margin-right: 8px"></div>
+            <select id="filterAttributeOperator" style="min-height: 32px; margin-right: 8px;">
+                <option value="=">Equal to</option>
+                <option value="like">Includes</option>
+                <option value="<">Lower than</option>
+                <option value=">">Greater than</option>
+                <option value="<=">Lower than or equal to</option>
+                <option value=">=">Greater than or equal to</option>
+            </select>
+            <input type="text" id="filterAttributeValue" placeholder="value" style="min-height: 28px">
+        </div>
+        <button onclick="filterAttributes()">Filter</button>
+        <button onclick="clearFilterAttributes()" id="filterAttributeClearFilter">Clear Filter</button>
+    </div>
+</div>
 </body>
 </html>

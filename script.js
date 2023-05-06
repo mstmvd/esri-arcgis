@@ -1617,16 +1617,40 @@ function applyTimeExtentToLayers() {
     if (timeSliderCheckedLayers.length === 0) {
         return;
     }
-    let query = '';
+    let filterEndTime;
+    let filterStartTime;
     if (timeSlider.timeExtent?.end) {
-        query += "time <= " + timeSlider.timeExtent?.end?.getTime();
+        filterEndTime = {
+            field: 'time',
+            fieldType: 'date',
+            operator: '<=',
+            value: timeSlider.timeExtent?.end?.getTime(),
+        }
     }
     if (timeSlider.timeExtent?.start) {
-        query += " and time >= " + timeSlider.timeExtent?.start?.getTime();
+        filterStartTime = {
+            field: 'time',
+            fieldType: 'date',
+            operator: '>=',
+            value: timeSlider.timeExtent?.end?.getTime(),
+        }
     }
     for (const timeSliderLayer of timeSliderCheckedLayers) {
-        layers[timeSliderLayer].definitionExpression = query;
-        updateLayerFeaturesCount(timeSliderLayer)
+        if (!layersInfo[timeSliderLayer].filters) {
+            layersInfo[timeSliderLayer].filters = {
+                time: [],
+            };
+        }
+        layersInfo[timeSliderLayer].filters['time'] = [];
+        if (filterEndTime) {
+            layersInfo[timeSliderLayer].filters.time.push(filterEndTime);
+        }
+        if (filterStartTime) {
+            layersInfo[timeSliderLayer].filters.time.push(filterStartTime);
+        }
+        layers[timeSliderLayer].definitionExpression = generateQuery(layersInfo[timeSliderLayer].filters);
+        updateLayerFeaturesCount(timeSliderLayer);
+        recreateFeatureTable(layers[timeSliderLayer]);
     }
 }
 
@@ -1945,6 +1969,44 @@ function generateFeatureTable(layer) {
             sortTable(table, layer.fields.indexOf(field) + 1);
         }
         th.innerHTML = field.name;
+        const filter = document.createElement('div');
+        filter.classList.add('icon');
+        filter.classList.add('esri-icon-filter');
+        filter.classList.add('cur-pointer');
+        filter.classList.add('filter');
+        if (!layersInfo[layer.id].filters) {
+            layersInfo[layer.id].filters = {};
+        }
+        let appliedFilter = !!layersInfo[layer.id].filters[field.name] && layersInfo[layer.id].filters[field.name].length > 0;
+        if (appliedFilter) {
+            appliedFilter = layersInfo[layer.id].filters[field.name][0];
+        }
+        if (appliedFilter) {
+            filter.classList.add('active-filter');
+        }
+        filter.onclick = (event) => {
+            event.stopPropagation();
+            document.getElementById('filterAttributeName').innerHTML = field.name;
+            document.getElementById('filterAttributeLayerId').value = layer.id;
+            document.getElementById('filterAttributeFieldName').value = field.name;
+            document.getElementById('filterAttributeFieldType').value = field.type;
+            document.getElementById('filterAttributeOperator').value = appliedFilter?.operator ?? '=';
+            const filterValue = document.getElementById('filterAttributeValue');
+            if (field.type === 'date') {
+                filterValue.value = appliedFilter?.value ? new Date(appliedFilter.value).toISOString().substring(0, 10) : '';
+                filterValue.type = 'date';
+            } else {
+                filterValue.value = appliedFilter?.value ?? '';
+                filterValue.type = 'text';
+            }
+            if (appliedFilter) {
+                document.getElementById('filterAttributeClearFilter').classList.remove('hidden');
+            } else {
+                document.getElementById('filterAttributeClearFilter').classList.add('hidden');
+            }
+            showContextMenu(event, 'filterAttributeMenu');
+        };
+        th.append(filter);
         headRow.append(th);
     }
     const thAction = document.createElement('th');
@@ -2003,6 +2065,57 @@ function generateFeatureTable(layer) {
         );
     table.append(tBody);
     return table;
+}
+
+function filterAttributes() {
+    const layerId = document.getElementById('filterAttributeLayerId').value;
+    const fieldName = document.getElementById('filterAttributeFieldName').value;
+    const fieldType = document.getElementById('filterAttributeFieldType').value;
+    const operator = document.getElementById('filterAttributeOperator').value;
+    const value = document.getElementById('filterAttributeValue').value;
+    if (!layersInfo[layerId].filters) {
+        layersInfo[layerId].filters = {};
+    }
+    layersInfo[layerId].filters[fieldName] = [
+        {
+            field: fieldName,
+            fieldType: fieldType,
+            operator: operator,
+            value: value,
+        }
+    ]
+    layers[layerId].definitionExpression = generateQuery(layersInfo[layerId].filters);
+    updateLayerFeaturesCount(layerId);
+    recreateFeatureTable(layers[layerId]);
+    dismissMenu('filterAttributeMenuContainer');
+}
+
+function clearFilterAttributes() {
+    const layerId = document.getElementById('filterAttributeLayerId').value;
+    const fieldName = document.getElementById('filterAttributeFieldName').value;
+    delete layersInfo[layerId].filters[fieldName];
+    layers[layerId].definitionExpression = generateQuery(layersInfo[layerId].filters);
+    updateLayerFeaturesCount(layerId);
+    recreateFeatureTable(layers[layerId]);
+    dismissMenu('filterAttributeMenuContainer');
+}
+
+function generateQuery(filters) {
+    const wheres = [];
+    for (const field in filters) {
+        for (const filter of filters[field]) {
+            if (filter.operator === 'like') {
+                wheres.push(`${filter.field} ${filter.operator} '%${filter.value}%'`);
+            } else {
+                if (filter.fieldType === 'string') {
+                    wheres.push(`${filter.field} ${filter.operator} '${filter.value}'`);
+                } else {
+                    wheres.push(`${filter.field} ${filter.operator} ${filter.value}`);
+                }
+            }
+        }
+    }
+    return wheres.join(' and ');
 }
 
 function showEditFeatureModal(layer, item) {
