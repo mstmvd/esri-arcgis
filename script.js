@@ -370,7 +370,8 @@ require([
     "esri/widgets/BasemapGallery",
     "esri/widgets/Sketch/SketchViewModel",
     "esri/geometry/geometryEngineAsync",
-], function (Map, MapView, SceneView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider, BasemapGallery, SketchViewModel, geometryEngineAsync) {
+    "esri/widgets/Measurement",
+], function (Map, MapView, SceneView, Graphic, GraphicsLayer, FeatureLayer, LabelClass, Field, Sketch, symbolUtils, SimpleRenderer, UniqueValueRenderer, ClassBreaksRenderer, HeatmapRenderer, UniqueValueInfo, ClassBreakInfo, HeatmapColorStop, TimeSlider, BasemapGallery, SketchViewModel, geometryEngineAsync, Measurement) {
     window.UniqueValueInfo = UniqueValueInfo;
     window.ClassBreakInfo = ClassBreakInfo;
     window.HeatmapColorStop = HeatmapColorStop;
@@ -381,8 +382,14 @@ require([
     const switchButton = document.getElementById("switch-btn");
     const addLayerButton = document.getElementById("addLayerBtn");
     const toc = document.getElementById('toc');
+    const measurementDiv = document.getElementById("measurementDiv");
+    const distanceButton = document.getElementById("distance");
+    const areaButton = document.getElementById("area");
+    const clearButton = document.getElementById("clear");
+
     let is3D = false;
     let sketchViewModel;
+    const measurement = new Measurement();
 
     map = new Map({
         basemap: "hybrid",
@@ -448,8 +455,31 @@ require([
         openModal('addLayerModal');
     });
 
+    distanceButton.addEventListener("click", () => {
+        const type = view.type;
+        measurement.activeTool =
+            type.toUpperCase() === "2D" ? "distance" : "direct-line";
+        distanceButton.classList.add("active");
+        areaButton.classList.remove("active");
+    });
+    areaButton.addEventListener("click", () => {
+        measurement.activeTool = "area";
+        distanceButton.classList.remove("active");
+        areaButton.classList.add("active");
+    });
+    clearButton.addEventListener("click", () => {
+        clearMeasurement();
+    });
+
+    function clearMeasurement() {
+        distanceButton.classList.remove("active");
+        areaButton.classList.remove("active");
+        measurement.clear();
+    }
+
     function initView() {
         let viewPoint;
+        clearMeasurement();
         if (view?.viewpoint) {
             viewPoint = view.viewpoint.clone();
         }
@@ -493,9 +523,12 @@ require([
                 {component: basemapGallery, index: 0, position: "top-right"},
                 {component: toc, index: 0, position: "bottom-left"},
                 {component: addLayerButton, index: 1, position: "top-left"},
+                {component: measurementDiv, index: 2, position: "top-left"},
+                {component: measurement, position: 'bottom-trailing'},
                 {component: switchButton, index: 2, position: "top-left"},
                 {component: timeSlider, index: 0, position: "bottom-trailing"},
             ]);
+            measurement.view = view;
         }).then(function () {
             view.on("pointer-up", addToLayer);
             view.on("pointer-up", selectObject);

@@ -517,3 +517,8 @@ body,
 .feature-table-container table thead tr th .active-filter {
     color: blue;
 }
+
+.esri-widget .active {
+    background-color: #eaeaea;
+    cursor: initial;
+}
