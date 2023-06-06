@@ -962,18 +962,18 @@ function timeSliderPlayRate(range) {
 
 function getLayerSymbol(layer) {
     let symbol;
-    switch (layer.renderer.type) {
-        case 'simple':
+    switch (layer.renderer.type.toPascalCase()) {
+        case 'Simple':
             symbol = layer.renderer.symbol;
             break
-        case 'unique-value':
+        case 'UniqueValue':
             symbol = layer.renderer.uniqueValueInfos[0].symbol;
             break;
-        case 'class-breaks':
+        case 'ClassBreaks':
             symbol = layer.renderer.classBreakInfos[0].symbol;
             break;
-        case 'heatmap':
-            symbol = layersInfo.pointLayer.renderers.simple.symbol;
+        case 'Heatmap':
+            symbol = layer.renderer.symbol;
             break;
     }
     return symbol?.clone();
@@ -1198,11 +1198,19 @@ function setIcon(element) {
     element.classList.add('active-icon');
 }
 
+function resetEditLayerModal() {
+
+}
+
 function initPointLayerModal() {
+    resetEditLayerModal();
     const geometryType = layers[activeTocLayer].geometryType;
     for (const key of Object.keys(layersInfo[activeTocLayer].renderers)) {
         const renderer = layersInfo[activeTocLayer].renderers[key];
-        const rendererType = key.ucFirst();
+        const rendererType = key.toPascalCase();
+        if (!['Simple', 'UniqueValue', 'ClassBreaks', 'Heatmap'].includes(rendererType)) {
+            continue;
+        }
         const symbolSetting = document.getElementById('pointLayer' + rendererType + 'SymbolSetting');
         switch (renderer.type) {
             case "simple":
@@ -1715,9 +1723,14 @@ Object.defineProperty(String.prototype, 'lcFirst', {
 
 Object.defineProperty(String.prototype, 'toPascalCase', {
     value: function () {
-        return this.replace(/\w+/g, function (w) {
-            return w[0].toUpperCase() + w.slice(1).toLowerCase();
-        }).replace(/-/, "");
+        let words = this.split(/[\s_-]|(?=[A-Z])/);
+        let pascalCaseWords = words.map(word => {
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        });
+        return pascalCaseWords.join("");
+        // return this.replace(/\w+/g, function (w) {
+        //     return w[0].toUpperCase() + w.slice(1).toLowerCase();
+        // }).replace(/-/, "");
     },
     enumerable: false
 });
