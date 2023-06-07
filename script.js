@@ -1217,7 +1217,7 @@ function initPointLayerModal() {
                 symbolSetting.innerHTML = createPointLayerSymbolFields(0, rendererType);
                 document.getElementById(geometryType + 'Layer' + rendererType + 'PointSize_0').value = renderer.symbol?.font?.size;
                 document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_0').value = renderer.symbol?.text;
-                document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_0').nextElementSibling.classList = document.querySelector('[data-code$=' + renderer.symbol.text?.charCodeAt(0).toString(16) + ']')?.classList;
+                document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_0').nextElementSibling.classList = document.querySelector('[data-code$=' + renderer.symbol.text?.charCodeAt(0)?.toString(16) + ']')?.classList;
                 break;
             case "unique-value":
                 symbolSetting.innerHTML = '';
@@ -1229,9 +1229,9 @@ function initPointLayerModal() {
                 for (let i = 0; i < renderer.uniqueValueInfos.length; i++) {
                     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(geometryType, rendererType, i));
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldValue_' + i).value = renderer.uniqueValueInfos[i].value;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'PointSize_' + i).value = renderer.uniqueValueInfos[i].symbol.font.size;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).value = renderer.uniqueValueInfos[i].symbol.text;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).nextElementSibling.classList = document.querySelector('[data-code$=' + renderer.uniqueValueInfos[i].symbol.text.charCodeAt(0).toString(16) + ']')?.classList;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'PointSize_' + i).value = renderer.uniqueValueInfos[i].symbol?.font?.size;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).value = renderer.uniqueValueInfos[i].symbol?.text;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).nextElementSibling.classList = document.querySelector('[data-code$=' + renderer.uniqueValueInfos[i].symbol?.text?.charCodeAt(0)?.toString(16) + ']')?.classList;
                 }
                 break;
             case "class-breaks":
@@ -1245,9 +1245,9 @@ function initPointLayerModal() {
                     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(geometryType, rendererType, i));
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldMinValue_' + i).value = renderer.classBreakInfos[i].minValue;
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldMaxValue_' + i).value = renderer.classBreakInfos[i].maxValue;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'PointSize_' + i).value = renderer.classBreakInfos[i].symbol.font.size;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).value = renderer.classBreakInfos[i].symbol.text;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).nextElementSibling.classList = document.querySelector('[data-code$=' + renderer.classBreakInfos[i].symbol.text.charCodeAt(0).toString(16) + ']')?.classList;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'PointSize_' + i).value = renderer.classBreakInfos[i].symbol?.font?.size;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).value = renderer.classBreakInfos[i].symbol?.text;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Icon_' + i).nextElementSibling.classList = document.querySelector('[data-code$=' + renderer.classBreakInfos[i].symbol?.text?.charCodeAt(0)?.toString(16) + ']')?.classList;
                 }
                 break;
             case "heatmap":
@@ -1276,8 +1276,8 @@ function initPolylineLayerModal() {
         switch (renderer.type) {
             case "simple":
                 symbolSetting.innerHTML = createPolylineLayerSymbolFields(0, rendererType);
-                document.getElementById(geometryType + 'Layer' + rendererType + 'Thickness_0').value = renderer.symbol.width;
-                document.getElementById(geometryType + 'Layer' + rendererType + 'Color_0').value = renderer.symbol.color.toHex();
+                document.getElementById(geometryType + 'Layer' + rendererType + 'Thickness_0').value = renderer.symbol?.width;
+                document.getElementById(geometryType + 'Layer' + rendererType + 'Color_0').value = renderer.symbol?.color?.toHex();
                 break;
             case "unique-value":
                 symbolSetting.innerHTML = '';
@@ -1289,8 +1289,8 @@ function initPolylineLayerModal() {
                 for (let i = 0; i < renderer.uniqueValueInfos.length; i++) {
                     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(geometryType, rendererType, i));
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldValue_' + i).value = renderer.uniqueValueInfos[i].value;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Thickness_' + i).value = renderer.uniqueValueInfos[i].symbol.width;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Color_' + i).value = renderer.uniqueValueInfos[i].symbol.color.toHex();
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Thickness_' + i).value = renderer.uniqueValueInfos[i].symbol?.width;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Color_' + i).value = renderer.uniqueValueInfos[i].symbol?.color?.toHex();
                 }
                 break;
             case "class-breaks":
@@ -1304,8 +1304,8 @@ function initPolylineLayerModal() {
                     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(geometryType, rendererType, i));
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldMinValue_' + i).value = renderer.classBreakInfos[i].minValue;
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldMaxValue_' + i).value = renderer.classBreakInfos[i].maxValue;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Thickness_' + i).value = renderer.classBreakInfos[i].symbol.width;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Color_' + i).value = renderer.classBreakInfos[i].symbol.color.toHex();
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Thickness_' + i).value = renderer.classBreakInfos[i].symbol?.width;
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Color_' + i).value = renderer.classBreakInfos[i].symbol?.color?.toHex();
                 }
                 break;
         }
@@ -1322,8 +1322,8 @@ function initPolygonLayerModal() {
         switch (renderer.type) {
             case "simple":
                 symbolSetting.innerHTML = createPolygonLayerSymbolFields(0, rendererType);
-                document.getElementById(geometryType + 'Layer' + rendererType + 'Background_0').value = renderer.symbol.color.toHex();
-                document.getElementById(geometryType + 'Layer' + rendererType + 'Border_0').value = renderer.symbol.outline.color.toHex();
+                document.getElementById(geometryType + 'Layer' + rendererType + 'Background_0').value = renderer.symbol?.color?.toHex();
+                document.getElementById(geometryType + 'Layer' + rendererType + 'Border_0').value = renderer.symbol?.outline?.color?.toHex();
                 break;
             case "unique-value":
                 symbolSetting.innerHTML = '';
@@ -1335,8 +1335,8 @@ function initPolygonLayerModal() {
                 for (let i = 0; i < renderer.uniqueValueInfos.length; i++) {
                     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(geometryType, rendererType, i));
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldValue_' + i).value = renderer.uniqueValueInfos[i].value;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Background_' + i).value = renderer.uniqueValueInfos[i].symbol.color.toHex();
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Border_' + i).value = renderer.uniqueValueInfos[i].symbol.outline.color.toHex();
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Background_' + i).value = renderer.uniqueValueInfos[i].symbol?.color?.toHex();
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Border_' + i).value = renderer.uniqueValueInfos[i].symbol?.outline?.color?.toHex();
                 }
                 break;
             case "class-breaks":
@@ -1350,8 +1350,8 @@ function initPolygonLayerModal() {
                     symbolSetting.insertAdjacentHTML('beforeend', createRendererSymbolSetting(geometryType, rendererType, i));
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldMinValue_' + i).value = renderer.classBreakInfos[i].minValue;
                     document.getElementById(geometryType + 'Layer' + rendererType + 'FieldMaxValue_' + i).value = renderer.classBreakInfos[i].maxValue;
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Background_' + i).value = renderer.classBreakInfos[i].symbol.color.toHex();
-                    document.getElementById(geometryType + 'Layer' + rendererType + 'Border_' + i).value = renderer.classBreakInfos[i].symbol.outline.color.toHex();
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Background_' + i).value = renderer.classBreakInfos[i].symbol?.color?.toHex();
+                    document.getElementById(geometryType + 'Layer' + rendererType + 'Border_' + i).value = renderer.classBreakInfos[i].symbol?.outline?.color?.toHex();
                 }
                 break;
         }
@@ -2001,6 +2001,8 @@ function recreateFeatureTable(layer) {
     }
 }
 
+const featureTableSortDirection = {};
+
 function generateFeatureTable(layer) {
     const tableId = layer.id + 'FeatureTableContainerTable';
     const table = document.createElement('table');
@@ -2012,7 +2014,20 @@ function generateFeatureTable(layer) {
         const th = document.createElement('th');
         th.classList.add('cur-pointer');
         th.onclick = () => {
-            sortTable(table, layer.fields.indexOf(field) + 1);
+            if (!featureTableSortDirection[layer.id]) {
+                featureTableSortDirection[layer.id] = {};
+            }
+            if (featureTableSortDirection[layer.id][field.name]) {
+                featureTableSortDirection[layer.id][field.name] = featureTableSortDirection[layer.id][field.name] === 'asc' ? 'desc' : 'asc';
+            } else {
+                featureTableSortDirection[layer.id][field.name] = 'asc';
+            }
+            for (const featureTableSortDirectionElement in featureTableSortDirection[layer.id]) {
+                if (featureTableSortDirectionElement !== field.name) {
+                    delete featureTableSortDirection[layer.id][featureTableSortDirectionElement];
+                }
+            }
+            sortTableByColumn(table, layer.fields.indexOf(field) + 1, featureTableSortDirection[layer.id][field.name] === 'asc');
         }
         th.innerHTML = field.name;
         const filter = document.createElement('div');
@@ -2276,6 +2291,7 @@ function createFeatureTableTab(layer) {
         if (shownFeatureTableLayers.length === 0) {
             hideAttributeTable();
         }
+        delete featureTableSortDirection[layer.id];
     }
     tab.append(closeButton);
     const title = document.createElement('div');
@@ -2297,56 +2313,32 @@ function activateFeatureTableTab(layer) {
     table.classList.add('feature-table-container-active');
 }
 
-function sortTable(table, n) {
-    var rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    switching = true;
-    //Set the sorting direction to ascending:
-    dir = "asc";
-    /*Make a loop that will continue until
-    no switching has been done:*/
-    while (switching) {
-        //start by saying: no switching is done:
-        switching = false;
-        rows = table.rows;
-        /*Loop through all table rows (except the
-        first, which contains table headers):*/
-        for (i = 1; i < (rows.length - 1); i++) {
-            //start by saying there should be no switching:
-            shouldSwitch = false;
-            /*Get the two elements you want to compare,
-            one from current row and one from the next:*/
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i + 1].getElementsByTagName("TD")[n];
-            /*check if the two rows should switch place,
-            based on the direction, asc or desc:*/
-            if (dir === "asc") {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                    //if so, mark as a switch and break the loop:
-                    shouldSwitch = true;
-                    break;
-                }
-            } else if (dir === "desc") {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                    //if so, mark as a switch and break the loop:
-                    shouldSwitch = true;
-                    break;
-                }
-            }
+function sortTableByColumn(table, column, asc = true) {
+    const dirModifier = asc ? 1 : -1;
+    const tBody = table.tBodies[0];
+    const rows = Array.from(tBody.querySelectorAll("tr"));
+
+    // Sort each row
+    const sortedRows = rows.sort((a, b) => {
+        let aColText = a.querySelector(`td:nth-child(${ column + 1})`).textContent.trim();
+        let bColText = b.querySelector(`td:nth-child(${ column + 1})`).textContent.trim();
+        if (!isNaN(aColText)) {
+            aColText = Number.parseFloat(aColText);
         }
-        if (shouldSwitch) {
-            /*If a switch has been marked, make the switch
-            and mark that a switch has been done:*/
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            //Each time a switch is done, increase this count by 1:
-            switchcount++;
-        } else {
-            /*If no switching has been done AND the direction is "asc",
-            set the direction to "desc" and run the while loop again.*/
-            if (switchcount === 0 && dir === "asc") {
-                dir = "desc";
-                switching = true;
-            }
+        if (!isNaN(bColText)) {
+            bColText = Number.parseFloat(bColText);
         }
+        return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
+    });
+
+    // Remove all existing TRs from the table
+    while (tBody.firstChild) {
+        tBody.removeChild(tBody.firstChild);
     }
+
+    // Re-add the newly sorted rows
+    tBody.append(...sortedRows);
+
+    // Remember how the column is currently sorted
+    table.querySelectorAll("th").forEach(th => th.classList.remove("th-sort-asc", "th-sort-desc"));
 }
