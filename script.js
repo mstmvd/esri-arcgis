@@ -1559,24 +1559,17 @@ function openLayerEditModal() {
 function openSelectedObjectsModal() {
     const table = document.getElementById('selectedObjectTable');
     table.innerHTML = '';
+    const features = [];
     for (const layerName in layersInfo) {
         if (layersInfo[layerName].selectedObjectIds.size > 0) {
             for (const selectedObject of layersInfo[layerName].selectedObjectIds.values()) {
-                const tr = document.createElement('tr');
-                const objectIdTd = document.createElement('td');
-                objectIdTd.innerHTML = selectedObject.graphic.attributes[layers[layerName].objectIdField];
-                const layerNameTd = document.createElement('td');
-                layerNameTd.innerHTML = selectedObject.graphic.layer.title;
-                const attributeTd = document.createElement('td');
-                attributeTd.innerHTML = `<pre>${JSON.stringify(selectedObject.graphic.attributes, null, 2)}</pre>`;
-                tr.append(objectIdTd);
-                tr.append(layerNameTd);
-                tr.append(attributeTd);
-                table.append(tr);
+                features.push(selectedObject.graphic);
             }
         }
     }
-    openModal('selectedObjectsModal');
+    view.popup.open({
+        features: features,
+    });
 }
 
 function confirmDeleteLayer() {
