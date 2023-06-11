@@ -609,9 +609,13 @@ require([
             },
         }],
         objectIdField: "ObjectID",
-        fullTimeExtent: { // entire extent of the timeSlider
-            start: new Date(2000, 1, 1).getTime(),
-            end: new Date(2004, 1, 1).getTime()
+        timeInfo: {
+            startField: "time",
+            endField: "",
+            fullTimeExtent: { // entire extent of the timeSlider
+                start: new Date(2000, 1, 1).getTime(),
+                end: new Date(2004, 1, 1).getTime()
+            },
         },
         definitionExpression: '',
         popupTemplate: layersInfo.pointLayer.template,
@@ -664,9 +668,13 @@ require([
             },
         }],
         objectIdField: "ObjectID",
-        fullTimeExtent: { // entire extent of the timeSlider
-            start: new Date(2003, 1, 1).getTime(),
-            end: new Date(2006, 1, 1).getTime()
+        timeInfo: {
+            startField: "time",
+            endField: "",
+            fullTimeExtent: { // entire extent of the timeSlider
+                start: new Date(2003, 1, 1).getTime(),
+                end: new Date(2006, 1, 1).getTime()
+            },
         },
         definitionExpression: '',
         outFields: ["*"],
@@ -719,9 +727,13 @@ require([
             },
         }],
         objectIdField: "ObjectID",
-        fullTimeExtent: { // entire extent of the timeSlider
-            start: new Date(2005, 1, 1).getTime(),
-            end: new Date(2008, 1, 1).getTime()
+        timeInfo: {
+            startField: "time",
+            endField: "",
+            fullTimeExtent: { // entire extent of the timeSlider
+                start: new Date(2005, 1, 1).getTime(),
+                end: new Date(2008, 1, 1).getTime()
+            },
         },
         definitionExpression: '',
         popupTemplate: layersInfo.polygonLayer.template,
@@ -1627,11 +1639,13 @@ function calcTimeSliderTimeExtent() {
     let absoluteStart = Number.MAX_VALUE;
     let absoluteEnd = 0;
     for (const timeSliderLayer of timeSliderCheckedLayers) {
-        if (layers[timeSliderLayer].fullTimeExtent?.start && absoluteStart > layers[timeSliderLayer].fullTimeExtent.start) {
-            absoluteStart = layers[timeSliderLayer].fullTimeExtent.start;
+        const timeInfo = layers[timeSliderLayer].timeInfo;
+
+        if (timeInfo.fullTimeExtent?.start && absoluteStart > timeInfo.fullTimeExtent.start) {
+            absoluteStart = timeInfo.fullTimeExtent.start;
         }
-        if (layers[timeSliderLayer].fullTimeExtent?.end && absoluteEnd < layers[timeSliderLayer].fullTimeExtent.end) {
-            absoluteEnd = layers[timeSliderLayer].fullTimeExtent.end;
+        if (timeInfo.fullTimeExtent?.end && absoluteEnd < timeInfo.fullTimeExtent.end) {
+            absoluteEnd = timeInfo.fullTimeExtent.end;
         }
     }
     if (absoluteStart === Number.MAX_VALUE || absoluteEnd === 0) {
@@ -1655,36 +1669,45 @@ function applyTimeExtentToLayers() {
     let filterStartTime;
     if (timeSlider.timeExtent?.end) {
         filterEndTime = {
-            field: 'time',
             fieldType: 'date',
             operator: '<=',
-            value: timeSlider.timeExtent?.end?.getTime(),
         }
     }
     if (timeSlider.timeExtent?.start) {
         filterStartTime = {
-            field: 'time',
             fieldType: 'date',
             operator: '>=',
-            value: timeSlider.timeExtent?.end?.getTime(),
         }
     }
     for (const timeSliderLayer of timeSliderCheckedLayers) {
-        if (!layersInfo[timeSliderLayer].filters) {
-            layersInfo[timeSliderLayer].filters = {
-                time: [],
-            };
+        const layer = layers[timeSliderLayer];
+        if (!layer.url) {
+            filterStartTime && (filterStartTime.value = timeSlider.timeExtent?.start?.getTime());
+            filterEndTime && (filterEndTime.value = timeSlider.timeExtent?.end?.getTime());
+        } else {
+            filterStartTime && (filterStartTime.value = "'" + timeSlider.timeExtent?.start.toISOString() + "'");
+            filterEndTime && (filterEndTime.value = "'" + timeSlider.timeExtent?.end.toISOString() + "'");
         }
-        layersInfo[timeSliderLayer].filters['time'] = [];
+        const startField = layer.timeInfo.startField;
+        const endField = layer.timeInfo.endField ?? layer.timeInfo.startField;
+        if (!layersInfo[timeSliderLayer].filters) {
+            layersInfo[timeSliderLayer].filters = {};
+        }
+        if (startField) {
+            layersInfo[timeSliderLayer].filters[startField] = [];
+        }
+        if (endField) {
+            layersInfo[timeSliderLayer].filters[endField] = [];
+        }
         if (filterEndTime) {
-            layersInfo[timeSliderLayer].filters.time.push(filterEndTime);
+            layersInfo[timeSliderLayer].filters[endField].push({field: endField, ...filterEndTime});
         }
         if (filterStartTime) {
-            layersInfo[timeSliderLayer].filters.time.push(filterStartTime);
+            layersInfo[timeSliderLayer].filters[startField].push({field: startField, ...filterStartTime});
         }
-        layers[timeSliderLayer].definitionExpression = generateQuery(layersInfo[timeSliderLayer].filters);
+        layer.definitionExpression = generateQuery(layersInfo[timeSliderLayer].filters);
         updateLayerFeaturesCount(timeSliderLayer);
-        recreateFeatureTable(layers[timeSliderLayer]);
+        recreateFeatureTable(layer);
     }
 }
 
@@ -2047,7 +2070,7 @@ function generateFeatureTable(layer) {
             document.getElementById('filterAttributeOperator').value = appliedFilter?.operator ?? '=';
             const filterValue = document.getElementById('filterAttributeValue');
             if (field.type === 'date') {
-                filterValue.value = appliedFilter?.value ? new Date(appliedFilter.value).toISOString().substring(0, 10) : '';
+                filterValue.value = appliedFilter?.value ? (isNaN(appliedFilter.value) ? appliedFilter.value.replace(/'/g, '') : new Date(appliedFilter.value).toISOString()).substring(0, 10) : '';
                 filterValue.type = 'date';
             } else {
                 filterValue.value = appliedFilter?.value ?? '';
